@@ -1,0 +1,19 @@
+{
+  "name": "code-debugger",
+  "version": "1.0.0",
+  "description": "A high-intensity, progressive code debugging game built for Campus Connect Community.",
+  "main": "game/index.html",
+  "scripts": {
+    "test": "node tests/run-tests.js",
+    "start": "npx -y serve -p 3000 ."
+  },
+  "keywords": [
+    "campus-connect",
+    "coding-game",
+    "debugging",
+    "educational",
+    "competitive-programming"
+  ],
+  "author": "Campus Connect Community",
+  "license": "MIT"
+}

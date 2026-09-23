@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Code Debugger - Campus Connect Community Game</title>
+  <meta name="description" content="A fast-paced competitive debugging game with 16 modes and progressively harder challenges across Python, C++, Java, JavaScript, and SQL.">
+
+  <!-- Google Fonts: Inter & JetBrains Mono -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;700;800&display=swap" rel="stylesheet">
+
+  <!-- Game Styles -->
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+  <main class="app-container" id="app">
+    
+    <!-- Top HUD Bar (Visible during active gameplay) -->
+    <header class="hud-container hidden" id="game-hud" aria-label="Game Status Bar">
+      <div class="hud-progress-bar">
+        <div class="hud-progress-fill" id="hud-progress-fill"></div>
+      </div>
+      <div class="hud-stats-grid">
+        <div class="hud-stat">
+          <span class="hud-stat-label" id="hud-question-count">Question 1 / 15</span>
+          <span class="diff-badge diff-easy" id="hud-difficulty-badge">DIFF: EASY (1/10)</span>
+        </div>
+
+        <div class="hud-stat" style="text-align: center;">
+          <span class="hud-stat-label">Time Remaining</span>
+          <span class="hud-stat-value hud-timer" id="hud-timer-text">05:00</span>
+        </div>
+
+        <div class="hud-stat" style="text-align: right;">
+          <span class="hud-stat-label">Score</span>
+          <span class="hud-stat-value hud-score" id="hud-score-text">0</span>
+        </div>
+
+        <div class="hud-stat" style="align-items: flex-end;">
+          <span class="streak-pill hidden" id="hud-streak-container">
+            <span id="hud-streak-count">2x STREAK 🔥</span>
+          </span>
+          <span class="mode-badge standalone" id="hud-mode-badge">Standalone Mode</span>
+        </div>
+      </div>
+    </header>
+
+    <!-- Screen 1: Start Screen -->
+    <section class="screen-card" id="start-screen" aria-label="Welcome Screen">
+      <h1 class="hero-title">CODE DEBUGGER</h1>
+      <p class="hero-tagline">Find the bug. Fix the logic. Beat the clock.</p>
+
+      <div class="feature-pills">
+        <div class="feature-pill"><span>⚡</span> 16 Debugging Modes</div>
+        <div class="feature-pill"><span>🧠</span> 100+ Question Bank</div>
+        <div class="feature-pill"><span>⏱️</span> 5:00 Countdown</div>
+        <div class="feature-pill"><span>🔥</span> Streak Multipliers</div>
+      </div>
+
+      <div class="language-tags">
+        <span class="lang-tag">Python</span>
+        <span class="lang-tag">C++</span>
+        <span class="lang-tag">Java</span>
+        <span class="lang-tag">JavaScript</span>
+        <span class="lang-tag">SQL</span>
+      </div>
+
+      <!-- Lifetime Stats Grid -->
+      <div class="lifetime-stats-grid" aria-label="Player Records">
+        <div class="lifetime-stat-card">
+          <div class="lifetime-stat-label">High Score</div>
+          <div class="lifetime-stat-val" style="color: var(--accent-cyan);" id="start-high-score">0</div>
+        </div>
+        <div class="lifetime-stat-card">
+          <div class="lifetime-stat-label">Games Played</div>
+          <div class="lifetime-stat-val" id="start-games-played">0</div>
+        </div>
+        <div class="lifetime-stat-card">
+          <div class="lifetime-stat-label">Best Streak</div>
+          <div class="lifetime-stat-val" style="color: var(--accent-amber);" id="start-best-streak">0x</div>
+        </div>
+        <div class="lifetime-stat-card">
+          <div class="lifetime-stat-label">Modes Mastered</div>
+          <div class="lifetime-stat-val" style="color: var(--accent-emerald);" id="start-modes-mastered">0/16</div>
+        </div>
+      </div>
+
+      <div>
+        <button class="cta-button" id="start-game-btn" type="button">
+          <span>▶</span> START GAME
+        </button>
+      </div>
+
+      <div class="start-footer">
+        <button class="secondary-button" id="sound-toggle-btn" type="button" style="padding: 0.35rem 0.8rem; font-size: 0.8rem;">
+          <span class="icon">🔊</span> Sound: ON
+        </button>
+      </div>
+    </section>
+
+    <!-- Screen 2: Active Gameplay Screen -->
+    <section class="game-card hidden" id="game-screen" aria-label="Active Challenge">
+      
+      <!-- Challenge Mode Indicator Banner -->
+      <div class="challenge-mode-bar" id="question-mode-bar">
+        <span class="mode-icon" id="question-mode-icon">🔍</span>
+        <span id="question-mode-name">MODE: BUG HUNT</span>
+      </div>
+
+      <div class="question-header">
+        <h2 class="question-title" id="question-title">Challenge Title</h2>
+        <div style="display: flex; gap: 0.5rem; align-items: center;">
+          <div id="question-diff-meter" title="Difficulty level"></div>
+          <span class="lang-badge lang-python" id="question-lang-badge">PYTHON</span>
+        </div>
+      </div>
+
+      <p class="question-description" id="question-description">Problem description detailing the buggy behavior...</p>
+
+      <!-- Contextual Callout (Expected vs Actual, Runtime Errors) -->
+      <div class="context-callout hidden" id="question-context-callout">
+        <!-- Injected dynamically based on question mode -->
+      </div>
+
+      <!-- Code Box -->
+      <div class="code-window">
+        <div class="code-window-bar">
+          <span class="window-dot dot-red"></span>
+          <span class="window-dot dot-yellow"></span>
+          <span class="window-dot dot-green"></span>
+          <span class="window-title">solution_draft</span>
+        </div>
+        <div class="code-content" id="question-code-block">
+          <!-- Populated by JavaScript -->
+        </div>
+      </div>
+
+      <!-- Multiple-Choice Options -->
+      <div class="options-prompt">Identify the correct fix:</div>
+      <div class="options-grid" id="options-grid" role="group" aria-label="Answer options">
+        <!-- Option Cards A, B, C, D injected here -->
+      </div>
+
+      <div class="action-bar">
+        <span class="shortcut-hint">Tip: Keys <strong>1-4</strong> or <strong>A-D</strong> select, <strong>Enter</strong> submits</span>
+        <button class="cta-button" id="submit-answer-btn" type="button" disabled>
+          SUBMIT ANSWER
+        </button>
+      </div>
+    </section>
+
+    <!-- Modal: Feedback Overlay -->
+    <div class="modal-backdrop hidden" id="feedback-modal" role="dialog" aria-modal="true">
+      <div class="modal-content">
+        <h3 class="feedback-title text-success" id="feedback-status-title">✓ CORRECT FIX IDENTIFIED</h3>
+        <div class="feedback-points-tag" id="feedback-points-earned">+125 POINTS</div>
+        
+        <div class="feedback-breakdown">
+          <span id="feedback-base-points">Base: +80</span>
+          <span>•</span>
+          <span id="feedback-speed-bonus">Speed: +30</span>
+          <span>•</span>
+          <span id="feedback-streak-bonus">Streak: +15</span>
+        </div>
+
+        <p class="feedback-explanation" id="feedback-explanation">
+          Detailed technical explanation of why this fix resolves the issue.
+        </p>
+
+        <div style="text-align: right;">
+          <button class="cta-button" id="feedback-next-btn" type="button">
+            NEXT QUESTION ➔
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Screen 3: Game Results / Summary -->
+    <section class="screen-card hidden" id="results-screen" aria-label="Game Completion Summary">
+      <h1 class="hero-title" style="font-size: 2.2rem;">GAME COMPLETE</h1>
+      <p class="hero-tagline">Final Session Performance</p>
+
+      <div style="margin: 1.25rem 0;">
+        <span style="font-size: 0.85rem; color: var(--text-dim); text-transform: uppercase; font-weight: 700; letter-spacing: 0.05em;">Final Score</span>
+        <div style="font-family: var(--font-mono); font-size: 3.5rem; font-weight: 900; color: var(--accent-cyan); text-shadow: 0 0 20px var(--accent-cyan-glow);" id="res-final-score">
+          0
+        </div>
+      </div>
+
+      <!-- 8 Detailed Metrics Grid -->
+      <div class="results-grid">
+        <div class="result-stat-box">
+          <span class="hud-stat-label">Questions</span>
+          <span class="hud-stat-value" id="res-questions-ratio">0 / 15</span>
+        </div>
+        <div class="result-stat-box">
+          <span class="hud-stat-label">Correct</span>
+          <span class="hud-stat-value" style="color: var(--accent-emerald);" id="res-correct-count">0</span>
+        </div>
+        <div class="result-stat-box">
+          <span class="hud-stat-label">Accuracy</span>
+          <span class="hud-stat-value" id="res-accuracy">0%</span>
+        </div>
+        <div class="result-stat-box">
+          <span class="hud-stat-label">Time Spent</span>
+          <span class="hud-stat-value" id="res-time">00:00</span>
+        </div>
+        <div class="result-stat-box">
+          <span class="hud-stat-label">Best Streak</span>
+          <span class="hud-stat-value" style="color: var(--accent-amber);" id="res-best-streak">0x</span>
+        </div>
+        <div class="result-stat-box">
+          <span class="hud-stat-label">Difficulty Reached</span>
+          <span class="hud-stat-value" id="res-diff-reached">Easy</span>
+        </div>
+        <div class="result-stat-box">
+          <span class="hud-stat-label">Modes Played</span>
+          <span class="hud-stat-value" style="color: var(--accent-cyan);" id="res-modes-count">0</span>
+        </div>
+        <div class="result-stat-box">
+          <span class="hud-stat-label">Languages</span>
+          <span class="hud-stat-value" style="color: var(--accent-purple);" id="res-languages-count">0</span>
+        </div>
+      </div>
+
+      <div class="results-actions">
+        <button class="cta-button" id="res-play-again-btn" type="button">
+          🔄 PLAY AGAIN
+        </button>
+        <button class="secondary-button" id="res-view-history-btn" type="button">
+          📜 LOCAL HISTORY
+        </button>
+      </div>
+
+      <div class="history-container hidden" id="res-history-container">
+        <h4 style="font-size: 0.9rem; color: var(--text-muted); text-transform: uppercase;">Recent Local Sessions</h4>
+        <ul class="history-list" id="res-history-list">
+          <!-- Injected dynamically -->
+        </ul>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Mode Bank Modules (17 Specialized Domains, 30 Challenges Each) -->
+  <script src="js/modes/beginner-starters.js"></script>
+  <script src="js/modes/bug-hunt.js"></script>
+  <script src="js/modes/fix-the-code.js"></script>
+  <script src="js/modes/output-detective.js"></script>
+  <script src="js/modes/runtime-rescue.js"></script>
+  <script src="js/modes/time-complexity.js"></script>
+  <script src="js/modes/off-by-one.js"></script>
+  <script src="js/modes/infinite-loop.js"></script>
+  <script src="js/modes/null-pointer.js"></script>
+  <script src="js/modes/memory-leak.js"></script>
+  <script src="js/modes/recursion-rescue.js"></script>
+  <script src="js/modes/sql-bug.js"></script>
+  <script src="js/modes/api-debugger.js"></script>
+  <script src="js/modes/concurrency-crash.js"></script>
+  <script src="js/modes/algorithm-bug.js"></script>
+  <script src="js/modes/security-bug.js"></script>
+  <script src="js/modes/debugging-boss.js"></script>
+
+  <!-- Script Pipeline -->
+  <script src="js/question-bank.js"></script>
+  <script src="js/session-generator.js"></script>
+  <script src="js/questions.js"></script>
+  <script src="js/scoring.js"></script>
+  <script src="js/timer.js"></script>
+  <script src="js/campus-connect.js"></script>
+  <script src="js/storage.js"></script>
+  <script src="js/game.js"></script>
+  <script src="js/main.js"></script>
+</body>
+</html>
