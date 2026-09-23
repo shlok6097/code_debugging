@@ -5,9 +5,21 @@
   "description": "Debug progressively harder code challenges before time runs out.",
   "author": "Campus Connect Community",
   "category": "coding",
-  "difficulty": "progressive",
+  "difficulty": "medium",
+  "entry": "game/index.html",
   "minPlayers": 1,
   "maxPlayers": 1,
-  "entry": "game/index.html",
-  "thumbnail": "thumbnail.png"
+  "orientation": "any",
+  "fullscreen": false,
+  "gameApiVersion": "1.0.0",
+  "supportedPlatforms": [
+    "web",
+    "mobile"
+  ],
+  "tags": [
+    "coding",
+    "javascript",
+    "debugging",
+    "challenge"
+  ]
 }
