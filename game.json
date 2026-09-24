@@ -1,7 +1,7 @@
 {
   "id": "code-debugger",
   "name": "Code Debugger",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "Debug progressively harder code challenges before time runs out.",
   "author": "Campus Connect Community",
   "category": "coding",
