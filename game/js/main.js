@@ -151,6 +151,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
   const resultsElements = {
     finalScore: document.getElementById('res-final-score'),
+    cloudStatus: document.getElementById('res-cloud-status'),
+    cloudStatusText: document.getElementById('res-cloud-status-text'),
     questionsRatio: document.getElementById('res-questions-ratio'),
     correctCount: document.getElementById('res-correct-count'),
     accuracyPercent: document.getElementById('res-accuracy'),
@@ -160,10 +162,18 @@ document.addEventListener('DOMContentLoaded', () => {
     modesCount: document.getElementById('res-modes-count'),
     languagesCount: document.getElementById('res-languages-count'),
     playAgainBtn: document.getElementById('res-play-again-btn'),
+    homeBtn: document.getElementById('res-home-btn'),
     historyBtn: document.getElementById('res-view-history-btn'),
     historyContainer: document.getElementById('res-history-container'),
     historyList: document.getElementById('res-history-list')
   };
+
+  const DURATION_CONFIGS = {
+    2: { minutes: 2, seconds: 120, questions: 6, label: "2 Min (6 Questions)" },
+    3: { minutes: 3, seconds: 180, questions: 10, label: "3 Min (10 Questions)" },
+    5: { minutes: 5, seconds: 300, questions: 15, label: "5 Min (15 Questions)" }
+  };
+  let currentDurationMinutes = 5;
 
   const startElements = {
     startBtn: document.getElementById('start-game-btn'),
@@ -171,13 +181,114 @@ document.addEventListener('DOMContentLoaded', () => {
     gamesPlayed: document.getElementById('start-games-played'),
     bestStreak: document.getElementById('start-best-streak'),
     modesMastered: document.getElementById('start-modes-mastered'),
-    soundToggleBtn: document.getElementById('sound-toggle-btn')
+    soundToggleBtn: document.getElementById('sound-toggle-btn'),
+    runnerBanner: document.getElementById('active-runner-banner'),
+    runnerName: document.getElementById('active-runner-name'),
+    runnerMobile: document.getElementById('active-runner-mobile'),
+    changeRunnerBtn: document.getElementById('change-runner-btn'),
+    durationPills: document.querySelectorAll('.duration-pill')
   };
 
-  // Sound Settings Init
+  const leaderboardElements = {
+    tabs: document.querySelectorAll('.lb-tab-btn'),
+    podium1: {
+      avatar: document.getElementById('podium-1-avatar'),
+      name: document.getElementById('podium-1-name'),
+      score: document.getElementById('podium-1-score'),
+      handle: document.getElementById('podium-1-handle')
+    },
+    podium2: {
+      avatar: document.getElementById('podium-2-avatar'),
+      name: document.getElementById('podium-2-name'),
+      score: document.getElementById('podium-2-score'),
+      handle: document.getElementById('podium-2-handle')
+    },
+    podium3: {
+      avatar: document.getElementById('podium-3-avatar'),
+      name: document.getElementById('podium-3-name'),
+      score: document.getElementById('podium-3-score'),
+      handle: document.getElementById('podium-3-handle')
+    },
+    runnersList: document.getElementById('lb-runners-list'),
+    refreshBtn: document.getElementById('leaderboard-refresh-btn')
+  };
+
+  let allLeaderboardRecords = [];
+  let activeLeaderboardTab = 5;
+
+  const playerModal = {
+    container: document.getElementById('player-modal'),
+    form: document.getElementById('player-form'),
+    nameInput: document.getElementById('player-name-input'),
+    mobileInput: document.getElementById('player-mobile-input'),
+    nameError: document.getElementById('name-error'),
+    mobileError: document.getElementById('mobile-error'),
+    roundText: document.getElementById('modal-round-text'),
+    cancelBtn: document.getElementById('player-modal-cancel-btn'),
+    submitBtn: document.getElementById('player-modal-submit-btn')
+  };
+
+  // Sound & Duration Settings Init
   const settings = GameStorage.getSettings();
   SoundSynth.setMuted(!settings.soundEnabled);
   updateSoundToggleButton();
+
+  if (settings.preferredDurationMinutes && DURATION_CONFIGS[settings.preferredDurationMinutes]) {
+    currentDurationMinutes = settings.preferredDurationMinutes;
+    activeLeaderboardTab = currentDurationMinutes;
+  }
+  updateDurationSelectorUI();
+  updateLeaderboardTabsUI();
+
+  function updateDurationSelectorUI() {
+    startElements.durationPills.forEach(pill => {
+      const dur = parseInt(pill.dataset.duration, 10);
+      const isSelected = (dur === currentDurationMinutes);
+      pill.classList.toggle('active', isSelected);
+      pill.setAttribute('aria-checked', isSelected ? 'true' : 'false');
+    });
+
+    if (playerModal.roundText) {
+      const cfg = DURATION_CONFIGS[currentDurationMinutes] || DURATION_CONFIGS[5];
+      playerModal.roundText.textContent = cfg.label;
+    }
+  }
+
+  function updateLeaderboardTabsUI() {
+    leaderboardElements.tabs.forEach(tab => {
+      const dur = parseInt(tab.dataset.tabDuration, 10);
+      const isActive = (dur === activeLeaderboardTab);
+      tab.classList.toggle('active', isActive);
+      tab.setAttribute('aria-selected', isActive ? 'true' : 'false');
+    });
+  }
+
+  // Duration Pills selection handler
+  startElements.durationPills.forEach(pill => {
+    pill.addEventListener('click', () => {
+      const dur = parseInt(pill.dataset.duration, 10);
+      if (DURATION_CONFIGS[dur]) {
+        currentDurationMinutes = dur;
+        activeLeaderboardTab = dur; // Auto-sync leaderboard tab
+        updateDurationSelectorUI();
+        updateLeaderboardTabsUI();
+        renderLeaderboard();
+        SoundSynth.playSelect();
+        GameStorage.saveSettings({ ...GameStorage.getSettings(), preferredDurationMinutes: currentDurationMinutes });
+      }
+    });
+  });
+
+  // Leaderboard Tab Button Listeners (2 Mins, 3 Mins, 5 Mins)
+  leaderboardElements.tabs.forEach(tab => {
+    tab.addEventListener('click', () => {
+      const dur = parseInt(tab.dataset.tabDuration, 10);
+      activeLeaderboardTab = dur;
+      updateLeaderboardTabsUI();
+      SoundSynth.playSelect();
+      renderLeaderboard();
+    });
+  });
 
   function updateSoundToggleButton() {
     if (startElements.soundToggleBtn) {
@@ -191,9 +302,251 @@ document.addEventListener('DOMContentLoaded', () => {
     startElements.soundToggleBtn.addEventListener('click', () => {
       const newMuted = !SoundSynth.isMuted();
       SoundSynth.setMuted(newMuted);
-      GameStorage.saveSettings({ soundEnabled: !newMuted });
+      GameStorage.saveSettings({ ...GameStorage.getSettings(), soundEnabled: !newMuted });
       updateSoundToggleButton();
       if (!newMuted) SoundSynth.playSelect();
+    });
+  }
+
+  // Active Runner Profile Management
+  function updateRunnerBanner() {
+    if (typeof FirebaseService === 'undefined') return;
+    const profile = FirebaseService.getPlayerProfile();
+    if (profile && profile.name && profile.mobile) {
+      if (startElements.runnerBanner) startElements.runnerBanner.classList.remove('hidden');
+      if (startElements.runnerName) startElements.runnerName.textContent = profile.name;
+      if (startElements.runnerMobile) startElements.runnerMobile.textContent = `(${FirebaseService.maskMobile(profile.mobile)})`;
+    } else {
+      if (startElements.runnerBanner) startElements.runnerBanner.classList.add('hidden');
+    }
+  }
+  updateRunnerBanner();
+
+  function openPlayerModal() {
+    playerModal.container.classList.remove('hidden');
+    playerModal.nameError.classList.add('hidden');
+    playerModal.mobileError.classList.add('hidden');
+    updateDurationSelectorUI();
+
+    if (typeof FirebaseService !== 'undefined') {
+      const profile = FirebaseService.getPlayerProfile();
+      if (profile) {
+        playerModal.nameInput.value = profile.name || '';
+        playerModal.mobileInput.value = profile.mobile || '';
+      }
+    }
+    playerModal.nameInput.focus();
+  }
+
+  function closePlayerModal() {
+    playerModal.container.classList.add('hidden');
+  }
+
+  if (startElements.changeRunnerBtn) {
+    startElements.changeRunnerBtn.addEventListener('click', () => {
+      SoundSynth.playSelect();
+      openPlayerModal();
+    });
+  }
+
+  if (playerModal.cancelBtn) {
+    playerModal.cancelBtn.addEventListener('click', () => {
+      closePlayerModal();
+    });
+  }
+
+  // Validate Name and 10-digit Mobile Number
+  if (playerModal.form) {
+    playerModal.form.addEventListener('submit', (e) => {
+      e.preventDefault();
+      const rawName = playerModal.nameInput.value.trim();
+      const rawMobile = playerModal.mobileInput.value.trim().replace(/\D/g, '');
+
+      let isValid = true;
+
+      if (!rawName || rawName.length < 2) {
+        playerModal.nameError.classList.remove('hidden');
+        isValid = false;
+      } else {
+        playerModal.nameError.classList.add('hidden');
+      }
+
+      if (!rawMobile || rawMobile.length !== 10) {
+        playerModal.mobileError.classList.remove('hidden');
+        isValid = false;
+      } else {
+        playerModal.mobileError.classList.add('hidden');
+      }
+
+      if (!isValid) return;
+
+      if (typeof FirebaseService !== 'undefined') {
+        FirebaseService.savePlayerProfile(rawName, rawMobile);
+      }
+
+      updateRunnerBanner();
+      closePlayerModal();
+      SoundSynth.playSelect();
+
+      const cfg = DURATION_CONFIGS[currentDurationMinutes] || DURATION_CONFIGS[5];
+      game.start({
+        totalQuestionsCount: cfg.questions,
+        gameDurationSeconds: cfg.seconds,
+        durationMinutes: cfg.minutes
+      });
+    });
+  }
+
+  // ==========================================
+  // Live Global Podium Leaderboard (Firebase)
+  // ==========================================
+  function renderLeaderboard() {
+    if (!leaderboardElements.runnersList) return;
+
+    // Filter scores by active tab duration (2, 3, or 5 mins)
+    const filtered = allLeaderboardRecords.filter(item => {
+      const dur = item.durationMinutes || (item.totalQuestions === 6 ? 2 : item.totalQuestions === 10 ? 3 : 5);
+      return dur === activeLeaderboardTab;
+    });
+
+    // Sort descending by score
+    filtered.sort((a, b) => (b.score || 0) - (a.score || 0));
+
+    const currentProfile = (typeof FirebaseService !== 'undefined') ? FirebaseService.getPlayerProfile() : null;
+
+    // Populate Top 3 Podium
+    const rank1 = filtered[0];
+    const rank2 = filtered[1];
+    const rank3 = filtered[2];
+
+    // Rank 1 (Center)
+    if (rank1) {
+      leaderboardElements.podium1.avatar.textContent = (rank1.name || 'R').charAt(0).toUpperCase();
+      leaderboardElements.podium1.name.textContent = rank1.name || 'Anonymous';
+      leaderboardElements.podium1.score.textContent = (rank1.score || 0).toLocaleString();
+      leaderboardElements.podium1.handle.textContent = `@${FirebaseService.maskMobile(rank1.mobile)}`;
+    } else {
+      leaderboardElements.podium1.avatar.textContent = '👑';
+      leaderboardElements.podium1.name.textContent = 'No Winner Yet';
+      leaderboardElements.podium1.score.textContent = '--';
+      leaderboardElements.podium1.handle.textContent = 'Play to claim #1';
+    }
+
+    // Rank 2 (Left)
+    if (rank2) {
+      leaderboardElements.podium2.avatar.textContent = (rank2.name || 'R').charAt(0).toUpperCase();
+      leaderboardElements.podium2.name.textContent = rank2.name || 'Anonymous';
+      leaderboardElements.podium2.score.textContent = (rank2.score || 0).toLocaleString();
+      leaderboardElements.podium2.handle.textContent = `@${FirebaseService.maskMobile(rank2.mobile)}`;
+    } else {
+      leaderboardElements.podium2.avatar.textContent = '🥈';
+      leaderboardElements.podium2.name.textContent = 'Open Spot';
+      leaderboardElements.podium2.score.textContent = '--';
+      leaderboardElements.podium2.handle.textContent = 'Claim Rank #2';
+    }
+
+    // Rank 3 (Right)
+    if (rank3) {
+      leaderboardElements.podium3.avatar.textContent = (rank3.name || 'R').charAt(0).toUpperCase();
+      leaderboardElements.podium3.name.textContent = rank3.name || 'Anonymous';
+      leaderboardElements.podium3.score.textContent = (rank3.score || 0).toLocaleString();
+      leaderboardElements.podium3.handle.textContent = `@${FirebaseService.maskMobile(rank3.mobile)}`;
+    } else {
+      leaderboardElements.podium3.avatar.textContent = '🥉';
+      leaderboardElements.podium3.name.textContent = 'Open Spot';
+      leaderboardElements.podium3.score.textContent = '--';
+      leaderboardElements.podium3.handle.textContent = 'Claim Rank #3';
+    }
+
+    // Populate Rank 4+ List
+    const remaining = filtered.slice(3);
+    if (remaining.length === 0) {
+      if (filtered.length === 0) {
+        leaderboardElements.runnersList.innerHTML = `
+          <li class="empty-podium-state">
+            <div class="empty-icon">🏆</div>
+            <p>No games recorded yet in <strong>${activeLeaderboardTab} Min Mode</strong>.<br>Be the first runner to enter the hall of fame!</p>
+          </li>
+        `;
+      } else {
+        leaderboardElements.runnersList.innerHTML = `
+          <li class="empty-podium-state" style="padding: 1.25rem;">
+            <p style="color: var(--text-dim); font-size: 0.85rem;">Top ${filtered.length} runner(s) shown on podium above. More players will appear here!</p>
+          </li>
+        `;
+      }
+      return;
+    }
+
+    const listHtml = remaining.map((item, idx) => {
+      const rankNum = idx + 4;
+      const initial = (item.name || 'R').charAt(0).toUpperCase();
+      const maskedPhone = FirebaseService.maskMobile(item.mobile);
+      const isCurrent = currentProfile && 
+        (currentProfile.name.toLowerCase() === (item.name || '').toLowerCase()) && 
+        (currentProfile.mobile.replace(/\D/g, '') === (item.mobile || '').replace(/\D/g, ''));
+
+      return `
+        <li class="lb-runner-item ${isCurrent ? 'current-user-item' : ''}">
+          <div class="lb-runner-left">
+            <span class="lb-runner-rank">#${rankNum}</span>
+            <div class="lb-runner-avatar">${initial}</div>
+            <div class="lb-runner-details">
+              <span class="lb-runner-name">${escapeHtml(item.name || 'Runner')}</span>
+              <span class="lb-runner-handle">@${maskedPhone}</span>
+            </div>
+          </div>
+          <div class="lb-runner-right">
+            <span class="lb-runner-score">${(item.score || 0).toLocaleString()}</span>
+            <span class="lb-runner-acc">▲ ${item.accuracy || 0}% acc</span>
+          </div>
+        </li>
+      `;
+    }).join('');
+
+    leaderboardElements.runnersList.innerHTML = listHtml;
+  }
+
+  function escapeHtml(str) {
+    return (str || '')
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;');
+  }
+
+  async function loadLeaderboard(isManual = false) {
+    if (typeof FirebaseService === 'undefined') return;
+    if (isManual && leaderboardElements.refreshBtn) {
+      leaderboardElements.refreshBtn.classList.add('refreshing');
+    }
+
+    try {
+      allLeaderboardRecords = await FirebaseService.fetchLeaderboard(50);
+      renderLeaderboard();
+    } catch (err) {
+      console.warn("[Leaderboard] Fetch error:", err);
+    } finally {
+      if (leaderboardElements.refreshBtn) {
+        leaderboardElements.refreshBtn.classList.remove('refreshing');
+      }
+    }
+  }
+
+  // Initial fetch and Realtime Sync
+  if (typeof FirebaseService !== 'undefined') {
+    FirebaseService.init();
+    loadLeaderboard();
+    FirebaseService.subscribeLeaderboard((scores) => {
+      allLeaderboardRecords = scores || [];
+      renderLeaderboard();
+    }, 50);
+  }
+
+  if (leaderboardElements.refreshBtn) {
+    leaderboardElements.refreshBtn.addEventListener('click', () => {
+      SoundSynth.playSelect();
+      loadLeaderboard(true);
     });
   }
 
@@ -420,7 +773,18 @@ document.addEventListener('DOMContentLoaded', () => {
       resultsElements.languagesCount.textContent = `${summary.metadata.languagesCount || 1}`;
     }
 
+    // Update cloud sync badge
+    if (resultsElements.cloudStatusText) {
+      const profile = (typeof FirebaseService !== 'undefined') ? FirebaseService.getPlayerProfile() : null;
+      if (profile && profile.name) {
+        resultsElements.cloudStatusText.textContent = `Synced to Firebase for ${escapeHtml(profile.name)} (${FirebaseService.maskMobile(profile.mobile)})`;
+      } else {
+        resultsElements.cloudStatusText.textContent = "Synced to Firebase Leaderboard";
+      }
+    }
+
     refreshStartScreenStats();
+    loadLeaderboard();
   }
 
   // Submit Answer button handler
@@ -435,17 +799,44 @@ document.addEventListener('DOMContentLoaded', () => {
     game.nextQuestion();
   });
 
-  // Start game CTA
-  startElements.startBtn.addEventListener('click', () => {
+  function handleStartPlay() {
     SoundSynth.playSelect();
-    game.start();
+    const cfg = DURATION_CONFIGS[currentDurationMinutes] || DURATION_CONFIGS[5];
+    const profile = (typeof FirebaseService !== 'undefined') ? FirebaseService.getPlayerProfile() : null;
+    if (!profile || !profile.name || !profile.mobile) {
+      openPlayerModal();
+    } else {
+      game.start({
+        totalQuestionsCount: cfg.questions,
+        gameDurationSeconds: cfg.seconds,
+        durationMinutes: cfg.minutes
+      });
+    }
+  }
+
+  // Start game CTA (Prompt for Name & Mobile if not configured)
+  startElements.startBtn.addEventListener('click', () => {
+    handleStartPlay();
   });
 
-  // Play Again CTA (generates fresh randomized session)
+  // Play Again CTA
   resultsElements.playAgainBtn.addEventListener('click', () => {
-    SoundSynth.playSelect();
-    game.start();
+    handleStartPlay();
   });
+
+  // View Leaderboard / Home CTA from Results Screen
+  if (resultsElements.homeBtn) {
+    resultsElements.homeBtn.addEventListener('click', () => {
+      SoundSynth.playSelect();
+      game.state = 'IDLE';
+      game.callbacks.onStateChange('IDLE');
+      refreshStartScreenStats();
+      loadLeaderboard(true);
+      // Scroll to leaderboard smoothly
+      const lb = document.getElementById('start-leaderboard-section');
+      if (lb) lb.scrollIntoView({ behavior: 'smooth' });
+    });
+  }
 
   // Standalone Game History Modal
   resultsElements.historyBtn.addEventListener('click', () => {
@@ -468,6 +859,14 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Keyboard Navigation & Shortcuts
   window.addEventListener('keydown', (e) => {
+    // If player modal is open, let user type freely
+    if (!playerModal.container.classList.contains('hidden')) {
+      if (e.key === 'Escape') {
+        closePlayerModal();
+      }
+      return;
+    }
+
     // If modal is visible, Space or Enter advances
     if (!feedbackModal.container.classList.contains('hidden')) {
       if (e.key === 'Enter' || e.key === ' ') {
@@ -500,8 +899,7 @@ document.addEventListener('DOMContentLoaded', () => {
       }
     } else if (game.state === 'IDLE' && (e.key === 'Enter' || e.key === ' ')) {
       e.preventDefault();
-      SoundSynth.playSelect();
-      game.start();
+      handleStartPlay();
     }
   });
 });

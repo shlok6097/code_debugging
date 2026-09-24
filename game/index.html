@@ -88,18 +88,187 @@
         </div>
       </div>
 
-      <div>
+      <!-- Active Runner Pill (When registered) -->
+      <div class="active-runner-banner hidden" id="active-runner-banner">
+        <span class="runner-info-text">👤 Runner: <span class="runner-name-tag" id="active-runner-name">Alex</span></span>
+        <span class="runner-mobile-tag" id="active-runner-mobile">(98****3210)</span>
+        <button class="change-runner-btn" id="change-runner-btn" type="button" title="Change player details">Edit</button>
+      </div>
+
+      <!-- Challenge Duration & Question Count Selector (2, 3, 5 Min) -->
+      <div class="duration-selector-wrapper" aria-label="Game Duration Options">
+        <span class="duration-title">⏱️ SELECT TIMER & QUESTIONS:</span>
+        <div class="duration-pills-group" id="duration-pills-group" role="radiogroup" aria-label="Choose match duration">
+          <button class="duration-pill" type="button" data-duration="2" data-questions="6" role="radio" aria-checked="false">
+            <span class="dur-badge">⚡ 2 MIN</span>
+            <span class="dur-qs">6 Questions</span>
+          </button>
+          <button class="duration-pill" type="button" data-duration="3" data-questions="10" role="radio" aria-checked="false">
+            <span class="dur-badge">⏱️ 3 MIN</span>
+            <span class="dur-qs">10 Questions</span>
+          </button>
+          <button class="duration-pill active" type="button" data-duration="5" data-questions="15" role="radio" aria-checked="true">
+            <span class="dur-badge">🏆 5 MIN</span>
+            <span class="dur-qs">15 Questions</span>
+          </button>
+        </div>
+      </div>
+
+      <div style="margin-top: 1rem;">
         <button class="cta-button" id="start-game-btn" type="button">
           <span>▶</span> START GAME
         </button>
       </div>
 
-      <div class="start-footer">
+      <!-- Screen 1 Leaderboard: Positioned directly below the Play button -->
+      <section class="leaderboard-section" id="start-leaderboard-section" aria-label="Global Leaderboard">
+        <div class="leaderboard-header">
+          <div class="leaderboard-title-group">
+            <span class="trophy-icon">🏆</span>
+            <div>
+              <h2 class="leaderboard-title">LEADERBOARD</h2>
+              <span class="leaderboard-subtitle">Live rankings synced with Firebase Database</span>
+            </div>
+          </div>
+          <button class="icon-button" id="leaderboard-refresh-btn" title="Refresh Live Rankings" type="button" aria-label="Refresh Leaderboard">
+            <span class="refresh-icon">🔄</span>
+          </button>
+        </div>
+
+        <!-- Duration Filter Tabs: 2 Mins | 3 Mins | 5 Mins -->
+        <div class="lb-tabs-container" id="lb-tabs-container" role="tablist">
+          <button class="lb-tab-btn" data-tab-duration="2" type="button" role="tab" aria-selected="false">
+            <span class="lb-tab-text">2 Mins</span>
+          </button>
+          <button class="lb-tab-btn" data-tab-duration="3" type="button" role="tab" aria-selected="false">
+            <span class="lb-tab-text">3 Mins</span>
+          </button>
+          <button class="lb-tab-btn active" data-tab-duration="5" type="button" role="tab" aria-selected="true">
+            <span class="lb-tab-text">5 Mins</span>
+          </button>
+        </div>
+
+        <!-- Leaderboard Podium & Runners Card -->
+        <div class="leaderboard-container-card">
+          <!-- Top 3 Podium Pedestal View -->
+          <div class="podium-wrapper" id="podium-wrapper">
+            <!-- Rank 2 Podium (Left) -->
+            <div class="podium-col podium-rank-2" id="podium-2">
+              <div class="podium-pedestal-card">
+                <div class="podium-avatar-wrapper">
+                  <div class="podium-avatar" id="podium-2-avatar">J</div>
+                  <div class="podium-rank-tag tag-2">2</div>
+                </div>
+                <div class="podium-name" id="podium-2-name">--</div>
+                <div class="podium-score" id="podium-2-score">--</div>
+                <div class="podium-handle" id="podium-2-handle">@username</div>
+              </div>
+            </div>
+
+            <!-- Rank 1 Podium (Center, Elevated with Crown) -->
+            <div class="podium-col podium-rank-1" id="podium-1">
+              <div class="crown-icon">👑</div>
+              <div class="podium-pedestal-card">
+                <div class="podium-avatar-wrapper">
+                  <div class="podium-avatar" id="podium-1-avatar">E</div>
+                  <div class="podium-rank-tag tag-1">1</div>
+                </div>
+                <div class="podium-name" id="podium-1-name">--</div>
+                <div class="podium-score" id="podium-1-score">--</div>
+                <div class="podium-handle" id="podium-1-handle">@username</div>
+              </div>
+            </div>
+
+            <!-- Rank 3 Podium (Right) -->
+            <div class="podium-col podium-rank-3" id="podium-3">
+              <div class="podium-pedestal-card">
+                <div class="podium-avatar-wrapper">
+                  <div class="podium-avatar" id="podium-3-avatar">E</div>
+                  <div class="podium-rank-tag tag-3">3</div>
+                </div>
+                <div class="podium-name" id="podium-3-name">--</div>
+                <div class="podium-score" id="podium-3-score">--</div>
+                <div class="podium-handle" id="podium-3-handle">@username</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Rank 4+ List View Card -->
+          <div class="lb-list-card">
+            <ul class="lb-runners-list" id="lb-runners-list">
+              <li class="lb-skeleton-item"><div class="skeleton-bar"></div></li>
+              <li class="lb-skeleton-item"><div class="skeleton-bar"></div></li>
+              <li class="lb-skeleton-item"><div class="skeleton-bar"></div></li>
+            </ul>
+          </div>
+        </div>
+      </section>
+
+      <div class="start-footer" style="margin-top: 1.5rem;">
         <button class="secondary-button" id="sound-toggle-btn" type="button" style="padding: 0.35rem 0.8rem; font-size: 0.8rem;">
           <span class="icon">🔊</span> Sound: ON
         </button>
       </div>
     </section>
+
+    <!-- Modal: Player Identity Registration (Prompts for Name & Mobile on Play) -->
+    <div class="modal-backdrop hidden" id="player-modal" role="dialog" aria-modal="true" aria-labelledby="player-modal-title">
+      <div class="modal-content player-card-modal">
+        <div class="player-modal-header">
+          <div class="badge-tag">RUNNER IDENTITY</div>
+          <h3 class="player-modal-title" id="player-modal-title">Enter Runner Details</h3>
+          <p class="player-modal-subtitle">Enter your name and mobile number. Your final score will be saved directly to the Global Leaderboard database.</p>
+          <div class="selected-round-chip" id="modal-selected-round-chip">
+            <span>⏱️ Selected Mode:</span> <strong id="modal-round-text">5 Min (15 Questions)</strong>
+          </div>
+        </div>
+
+        <form id="player-form" class="player-form" novalidate>
+          <div class="form-group">
+            <label for="player-name-input" class="form-label">
+              <span class="label-icon">👤</span> Your Full Name
+            </label>
+            <input 
+              type="text" 
+              id="player-name-input" 
+              class="form-input" 
+              placeholder="e.g. Shlok D" 
+              maxlength="30" 
+              required 
+              autocomplete="name"
+            />
+            <span class="form-error hidden" id="name-error">Please enter your name (at least 2 characters)</span>
+          </div>
+
+          <div class="form-group">
+            <label for="player-mobile-input" class="form-label">
+              <span class="label-icon">📱</span> Mobile Number
+            </label>
+            <div class="input-with-prefix">
+              <span class="input-prefix">+91</span>
+              <input 
+                type="tel" 
+                id="player-mobile-input" 
+                class="form-input" 
+                placeholder="10-digit mobile number" 
+                maxlength="10" 
+                pattern="[0-9]{10}"
+                required 
+                autocomplete="tel"
+              />
+            </div>
+            <span class="form-error hidden" id="mobile-error">Please enter a valid 10-digit mobile number</span>
+          </div>
+
+          <div class="player-modal-actions">
+            <button type="button" class="secondary-button" id="player-modal-cancel-btn">Cancel</button>
+            <button type="submit" class="cta-button" id="player-modal-submit-btn">
+              <span>🚀</span> CONFIRM & PLAY
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
 
     <!-- Screen 2: Active Gameplay Screen -->
     <section class="game-card hidden" id="game-screen" aria-label="Active Challenge">
@@ -188,6 +357,9 @@
         <div style="font-family: var(--font-mono); font-size: 3.5rem; font-weight: 900; color: var(--accent-cyan); text-shadow: 0 0 20px var(--accent-cyan-glow);" id="res-final-score">
           0
         </div>
+        <div id="res-cloud-status" class="cloud-sync-badge">
+          <span>☁️</span> <span id="res-cloud-status-text">Synced to Firebase Leaderboard</span>
+        </div>
       </div>
 
       <!-- 8 Detailed Metrics Grid -->
@@ -230,6 +402,9 @@
         <button class="cta-button" id="res-play-again-btn" type="button">
           🔄 PLAY AGAIN
         </button>
+        <button class="secondary-button" id="res-home-btn" type="button">
+          🏆 VIEW LEADERBOARD
+        </button>
         <button class="secondary-button" id="res-view-history-btn" type="button">
           📜 LOCAL HISTORY
         </button>
@@ -244,6 +419,10 @@
     </section>
 
   </main>
+
+  <!-- Firebase Core & Firestore SDKs (Compat v10) -->
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
 
   <!-- Mode Bank Modules (17 Specialized Domains, 30 Challenges Each) -->
   <script src="js/modes/beginner-starters.js"></script>
@@ -272,6 +451,7 @@
   <script src="js/timer.js"></script>
   <script src="js/campus-connect.js"></script>
   <script src="js/storage.js"></script>
+  <script src="js/firebase-service.js"></script>
   <script src="js/game.js"></script>
   <script src="js/main.js"></script>
 </body>

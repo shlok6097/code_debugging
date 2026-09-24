@@ -89,8 +89,11 @@ const SessionGenerator = (function () {
       eligibleStandard = [...standardPool];
     }
 
-    // Step 1: Select the FIRST 3 questions strictly from the Beginner Starter Pool
-    for (let i = 0; i < Math.min(3, totalQuestions); i++) {
+    // Determine beginner questions count (2 for short sessions <= 6, 3 for 10+ questions)
+    const beginnerCount = totalQuestions <= 6 ? 2 : 3;
+
+    // Step 1: Select the FIRST beginnerCount questions strictly from the Beginner Starter Pool
+    for (let i = 0; i < Math.min(beginnerCount, totalQuestions); i++) {
       let candidates = eligibleBeginner.filter(q => !usedIds.has(q.id));
       if (candidates.length === 0) {
         candidates = beginnerPool.filter(q => !usedIds.has(q.id));
@@ -107,8 +110,8 @@ const SessionGenerator = (function () {
       selectedQuestions.push(chosen);
     }
 
-    // Step 2: Select remaining questions (slots 4 to totalQuestions) with progressive difficulty
-    for (let i = 3; i < totalQuestions; i++) {
+    // Step 2: Select remaining questions with progressive difficulty
+    for (let i = beginnerCount; i < totalQuestions; i++) {
       const targetDiff = difficultySlots[i];
       const isBossSlot = (i === totalQuestions - 1);
 

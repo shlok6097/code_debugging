@@ -30,8 +30,17 @@ class CodeDebuggerGame {
 
   /**
    * Initializes and starts a new game round with a freshly randomized session.
+   * @param {Object} config Optional runtime overrides { totalQuestionsCount, gameDurationSeconds, durationMinutes }
    */
-  start() {
+  start(config = {}) {
+    if (config.totalQuestionsCount) {
+      this.totalQuestionsCount = config.totalQuestionsCount;
+    }
+    if (config.gameDurationSeconds) {
+      this.gameDurationSeconds = config.gameDurationSeconds;
+    }
+    this.durationMinutes = config.durationMinutes || Math.round(this.gameDurationSeconds / 60);
+
     this.state = "ACTIVE";
     this.scoring.reset();
     this.currentIndex = 0;
@@ -211,13 +220,33 @@ class CodeDebuggerGame {
         modesCount: modesPlayed.length,
         languagesPlayed,
         languagesCount: languagesPlayed.length,
-        highestDifficulty: this.scoring.highestDifficulty
+        highestDifficulty: this.scoring.highestDifficulty,
+        durationMinutes: this.durationMinutes || Math.round((this.gameDurationSeconds || 300) / 60),
+        totalQuestionsConfigured: this.totalQuestionsCount
       }
     };
 
     // Save to local storage for Standalone Mode history
     if (typeof GameStorage !== 'undefined') {
       GameStorage.saveScore(finalSummary.score, finalSummary.metadata);
+    }
+
+    // Save to Firebase Firestore Database Leaderboard
+    let firebaseSavePromise = null;
+    if (typeof FirebaseService !== 'undefined') {
+      const player = FirebaseService.getPlayerProfile() || { name: "Anonymous Runner", mobile: "" };
+      firebaseSavePromise = FirebaseService.saveScoreToLeaderboard({
+        name: player.name,
+        mobile: player.mobile,
+        score: finalSummary.score,
+        accuracy: finalSummary.metadata.accuracy,
+        difficulty: finalSummary.metadata.difficultyReached,
+        correctAnswers: finalSummary.metadata.questionsCorrect,
+        totalQuestions: this.totalQuestionsCount,
+        durationMinutes: this.durationMinutes || Math.round((this.gameDurationSeconds || 300) / 60),
+        modesCount: finalSummary.metadata.modesCount,
+        durationSeconds: finalSummary.durationSeconds
+      });
     }
 
     // Dispatch to Campus Connect bridge if available
@@ -229,7 +258,8 @@ class CodeDebuggerGame {
     this.callbacks.onStateChange(this.state);
     this.callbacks.onGameComplete({
       summary: finalSummary,
-      bridgeDispatched: bridgeResult ? bridgeResult.dispatched : false
+      bridgeDispatched: bridgeResult ? bridgeResult.dispatched : false,
+      firebaseSavePromise
     });
   }
 }
