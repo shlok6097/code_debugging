@@ -14,12 +14,12 @@ const RUNTIME_RESCUE_BANK = [
     code: `def get_user_role(profile):\n    return profile['role']`,
     runtimeError: "KeyError: 'role'",
     options: [
-      "profile['role'] should be profile.get('role', 'guest') to safely handle missing keys",
-      "profile must be a tuple instead of dict",
-      "KeyError is caused by Python memory exhaustion",
-      "profile['role'] must be converted to int"
+      "Convert profile dictionary into an immutable tuple structure",
+      "Use safe dictionary fallback lookup: profile.get('role', 'guest')",
+      "KeyError indicates system virtual memory is completely exhausted",
+      "Cast the returned key value explicitly to integer: int(profile['role'])"
     ],
-    correctOption: 0,
+    correctOption: 1,
     explanation: "WHAT: KeyError on missing key. WHY: Bracket indexing on dicts raises KeyError if key is missing. HOW: Use `.get('role', default)`.",
     basePoints: 75,
     tags: ["python", "dict", "exceptions"]
@@ -34,10 +34,10 @@ const RUNTIME_RESCUE_BANK = [
     code: `function getStreet(user) {\n  return user.address.street;\n}`,
     runtimeError: "TypeError: Cannot read properties of undefined (reading 'street')",
     options: [
-      "Use optional chaining user?.address?.street to guard against null/undefined parent",
-      "user.address.street must be called as a function",
-      "JavaScript does not allow nested properties",
-      "getStreet must be declared with let"
+      "Employ optional chaining: return user?.address?.street to prevent errors",
+      "Invoke address lookup as a function: return user.address.street() instead",
+      "JavaScript strict mode prohibits accessing any nested object properties",
+      "Declare the top-level getStreet function identifier using let keyword"
     ],
     correctOption: 0,
     explanation: "WHAT: TypeError reading undefined. WHY: If `user.address` is undefined, `.street` throws. HOW: Use optional chaining `user?.address?.street`.",
@@ -54,12 +54,12 @@ const RUNTIME_RESCUE_BANK = [
     code: `public int getLastElement(int[] data) {\n    return data[data.length];\n}`,
     runtimeError: "java.lang.ArrayIndexOutOfBoundsException: Index 5 out of bounds for length 5",
     options: [
-      "Valid indices range from 0 to data.length - 1; data[data.length] is 1 past the end",
-      "int[] data cannot be accessed with square brackets",
-      "data.length should be data.size()",
-      "Arrays in Java cannot hold 5 items"
+      "Java primitive arrays cannot be indexed using standard square brackets",
+      "Replace data.length property access with collection method data.size()",
+      "Indices run 0 to length - 1; read data[data.length - 1] for last element",
+      "Fixed-size primitive arrays in Java cannot store five or more elements"
     ],
-    correctOption: 0,
+    correctOption: 2,
     explanation: "WHAT: ArrayIndexOutOfBoundsException. WHY: Zero-indexed arrays end at `length - 1`. HOW: Access `data[data.length - 1]`.",
     basePoints: 100,
     tags: ["java", "arrays", "runtime"]
@@ -74,10 +74,10 @@ const RUNTIME_RESCUE_BANK = [
     code: `int getParam(const std::vector<int>& config, size_t idx) {\n    return config.at(idx);\n}`,
     runtimeError: "terminate called after throwing an instance of 'std::out_of_range'",
     options: [
-      "idx is >= config.size(); bounds check if (idx < config.size()) is required",
-      "std::vector::at only accepts negative numbers",
-      "config must be passed by pointer",
-      "C++ vectors cannot store integers"
+      "Bounds check idx < config.size() before accessing elements with at()",
+      "std::vector::at exclusively accepts negative offsets in standard C++",
+      "Pass vector container config by raw unmanaged pointer rather than ref",
+      "Standard vector containers in C++ cannot store signed primitive integers"
     ],
     correctOption: 0,
     explanation: "WHAT: std::out_of_range. WHY: `.at()` performs bounds checking and throws if `idx >= size()`. HOW: Verify `idx < config.size()` before lookup.",
@@ -94,12 +94,12 @@ const RUNTIME_RESCUE_BANK = [
     code: `def get_average(total, count):\n    return total / count`,
     runtimeError: "ZeroDivisionError: division by zero",
     options: [
-      "Check if count == 0 before division: return total / count if count else 0",
-      "total / count should be total // count",
-      "ZeroDivisionError cannot be prevented",
-      "count must be a float"
+      "Replace standard float division total / count with floor division //",
+      "Guard against zero denominator: return total / count if count else 0",
+      "ZeroDivisionError cannot be handled or prevented in standard Python",
+      "Convert denominator count parameter explicitly to 64-bit float type"
     ],
-    correctOption: 0,
+    correctOption: 1,
     explanation: "WHAT: ZeroDivisionError. WHY: Division by zero is mathematically undefined. HOW: Add guard `if count == 0: return 0`.",
     basePoints: 100,
     tags: ["python", "math", "exceptions"]
@@ -112,14 +112,13 @@ const RUNTIME_RESCUE_BANK = [
     title: "Assignment to Constant Variable",
     description: "Reassigning score declared with const throws TypeError.",
     code: `const score = 100;\nscore = 200;`,
-    runtimeError: "TypeError: Assignment to constant variable.",
     options: [
-      "Variables declared with const cannot be reassigned; declare with let instead",
-      "score = 200 must use const again",
-      "100 cannot be changed to 200",
-      "score must be wrapped in quotes"
+      "Re-declare score on assignment using const score = 200 in local scope",
+      "Enclose numeric assignment score = '200' in string quotes to mutate",
+      "Declare score with let: let score = 100 to allow variable reassignment",
+      "Values declared as integer numbers cannot be changed after declaration"
     ],
-    correctOption: 0,
+    correctOption: 2,
     explanation: "WHAT: TypeError reassigning constant. WHY: `const` variables are immutable references. HOW: Declare with `let score = 100;`.",
     basePoints: 125,
     tags: ["javascript", "variables", "const"]
@@ -134,12 +133,12 @@ const RUNTIME_RESCUE_BANK = [
     code: `int val = Integer.parseInt("123a");`,
     runtimeError: "java.lang.NumberFormatException: For input string: \"123a\"",
     options: [
-      "Input contains non-digit character 'a'; must sanitize input or wrap in try-catch block",
-      "Integer.parseInt only accepts 2-digit numbers",
-      "\"123a\" must be converted to double",
-      "int val cannot hold 123"
+      "Integer.parseInt exclusively supports strings containing up to two digits",
+      "Cast input string literal \"123a\" directly to double primitive variable",
+      "Input contains non-digit 'a'; sanitize string or catch NumberFormatException",
+      "Primitive variable int val cannot hold numbers exceeding two decimal digits"
     ],
-    correctOption: 0,
+    correctOption: 2,
     explanation: "WHAT: NumberFormatException. WHY: `Integer.parseInt` expects valid numeric digits only. HOW: Catch `NumberFormatException` or validate with regex.",
     basePoints: 125,
     tags: ["java", "parsing", "exceptions"]
@@ -153,10 +152,10 @@ const RUNTIME_RESCUE_BANK = [
     description: "Dereferencing uninitialized pointer crashes program with SIGSEGV.",
     code: `int* ptr = nullptr;\n*ptr = 42;`,
     options: [
-      "Dereferencing nullptr is undefined behavior and triggers segmentation fault; allocate memory before writing",
-      "*ptr = 42 must be ptr = 42",
-      "int* cannot point to 42",
-      "nullptr is invalid in C++"
+      "Dereferencing nullptr is undefined behavior; allocate memory before writing",
+      "Assign address directly via ptr = 42 without dereference asterisk operator",
+      "Pointers to primitive int* cannot store numerical value 42 in C++ memory",
+      "Literal nullptr keyword is not supported in modern standard ISO C++"
     ],
     correctOption: 0,
     explanation: "WHAT: Null pointer dereference crash. WHY: Writing to address 0 (nullptr) is prohibited by OS memory protection. HOW: Point `ptr` to a valid memory address before dereferencing.",
@@ -173,12 +172,12 @@ const RUNTIME_RESCUE_BANK = [
     code: `items = []\nlast = items.pop()`,
     runtimeError: "IndexError: pop from empty list",
     options: [
-      "Verify items is not empty (if items:) before calling pop()",
-      "items.pop() requires passing an integer index",
-      "Empty lists cannot be created in Python",
-      "last must be declared with let"
+      "Method items.pop() requires passing an integer index parameter explicitly",
+      "Guard before popping: check if items: last = items.pop() to prevent errors",
+      "Empty lists cannot be initialized without at least one default placeholder",
+      "Declare return variable last using JavaScript let keyword declaration"
     ],
-    correctOption: 0,
+    correctOption: 1,
     explanation: "WHAT: IndexError popping empty list. WHY: Cannot extract elements from a zero-length list. HOW: Guard with `if items: last = items.pop()`.",
     basePoints: 150,
     tags: ["python", "lists", "exceptions"]
@@ -193,12 +192,12 @@ const RUNTIME_RESCUE_BANK = [
     code: `const user = { getName: "Alice" };\nuser.getName();`,
     runtimeError: "TypeError: user.getName is not a function",
     options: [
-      "getName is a string property, not a callable function; access with user.getName (no parentheses)",
-      "user object must be created with new User()",
-      "Alice must be inside brackets",
-      "getName is a reserved keyword"
+      "Instantiate user object using new User() constructor function invocation",
+      "Enclose string literal value in array brackets: getName: [\"Alice\"]",
+      "Identifier getName is a reserved ECMAScript keyword in strict mode",
+      "getName is a string property, not a function; access as user.getName"
     ],
-    correctOption: 0,
+    correctOption: 3,
     explanation: "WHAT: TypeError on non-function call. WHY: `getName` is a string value. HOW: Access property without `()`: `user.getName`.",
     basePoints: 150,
     tags: ["javascript", "functions", "objects"]
@@ -213,10 +212,10 @@ const RUNTIME_RESCUE_BANK = [
     code: `Object num = 42;\nString text = (String) num;`,
     runtimeError: "java.lang.ClassCastException: class java.lang.Integer cannot be cast to class java.lang.String",
     options: [
-      "Integer cannot be cast to String; use String.valueOf(num) or num.toString()",
-      "Object num = 42 is invalid syntax",
-      "String text must be declared Object text",
-      "42 is too large for Object"
+      "Integer cannot cast to String; use String.valueOf(num) or num.toString()",
+      "Assigning primitive int to Object variable is invalid syntax in Java",
+      "Declare variable text with Object text type to avoid type mismatch",
+      "Numerical value 42 exceeds maximum allowable memory bounds for Object"
     ],
     correctOption: 0,
     explanation: "WHAT: ClassCastException. WHY: `Integer` and `String` are unrelated object hierarchies. HOW: Convert with `String.valueOf(num)`.",
@@ -233,12 +232,12 @@ const RUNTIME_RESCUE_BANK = [
     code: `int a = 10, b = 0;\nint c = a / b;`,
     runtimeError: "Program terminated with signal SIGFPE, Arithmetic exception.",
     options: [
-      "Integer division by zero is undefined behavior in C++ causing hardware trap signal; check b != 0",
-      "a / b must be a % b",
-      "int c must be double c",
-      "10 cannot be divided in C++"
+      "Replace division operator with modulo operation: int c = a % b in code",
+      "Integer division by zero triggers hardware trap; check if (b != 0) first",
+      "Declare result variable c as double c to enable IEEE floating division",
+      "Integer constant 10 cannot be divided by variables in C++ runtime"
     ],
-    correctOption: 0,
+    correctOption: 1,
     explanation: "WHAT: SIGFPE arithmetic crash. WHY: CPUs trap on integer division by zero. HOW: Guard with `if (b != 0) c = a / b;`.",
     basePoints: 175,
     tags: ["cpp", "math", "signals"]
@@ -253,12 +252,12 @@ const RUNTIME_RESCUE_BANK = [
     code: `def count_nodes(node):\n    return 1 + count_nodes(node.next)`,
     runtimeError: "RecursionError: maximum recursion depth exceeded",
     options: [
-      "Missing base case when node is None (or circular references exist)",
-      "Python recursion only supports numbers, not objects",
-      "1 + count_nodes requires int casting",
-      "node.next is illegal syntax"
+      "Python recursion only supports numbers, not custom object instances",
+      "Cast addition expression explicitly with int(1 + count_nodes(node.next))",
+      "Add base case: return 0 if node is None to terminate recursion properly",
+      "Attribute lookup node.next is illegal syntax in Python function scope"
     ],
-    correctOption: 0,
+    correctOption: 2,
     explanation: "WHAT: Infinite recursion. WHY: No base case `if node is None: return 0`. HOW: Add terminal check before recursing.",
     basePoints: 175,
     tags: ["python", "recursion", "runtime"]
@@ -273,10 +272,10 @@ const RUNTIME_RESCUE_BANK = [
     code: `async function fetchData() {\n  throw new Error("Server Offline");\n}\nfetchData(); // no catch handler`,
     runtimeError: "UnhandledPromiseRejection: Unhandled promise rejection: Error: Server Offline",
     options: [
-      "Async function rejection must be handled with .catch(err => ...) or try/catch with await",
-      "throw new Error is not allowed in async functions",
-      "Server Offline must be in quotes",
-      "fetchData must be marked static"
+      "Handle promise rejection with .catch(err => ...) or try/catch with await",
+      "Keywords throw new Error are not permitted inside asynchronous functions",
+      "Error description string literal 'Server Offline' must use backticks",
+      "Declare fetchData function as a static member of a class declaration"
     ],
     correctOption: 0,
     explanation: "WHAT: Unhandled Promise rejection. WHY: Promises that reject without a `.catch()` trigger unhandled exceptions. HOW: Attach `.catch(console.error)` or `await` inside `try/catch`.",
@@ -293,12 +292,12 @@ const RUNTIME_RESCUE_BANK = [
     code: `public double getRatio(Integer numerator, int denominator) {\n    return numerator / (double) denominator;\n}`,
     runtimeError: "java.lang.NullPointerException: Cannot invoke 'java.lang.Integer.intValue()' because 'numerator' is null",
     options: [
-      "Auto-unboxing null Integer object implicitly calls intValue() which throws NPE",
-      "denominator cannot be cast to double",
-      "getRatio must be declared private",
-      "Division by double is illegal in Java"
+      "Primitive denominator parameter cannot be cast to double in Java",
+      "Auto-unboxing null Integer calls intValue() throwing NPE; check != null",
+      "Method getRatio must be declared with private access modifier in class",
+      "Division by double primitive type is illegal in standard Java runtime"
     ],
-    correctOption: 0,
+    correctOption: 1,
     explanation: "WHAT: NPE on auto-unboxing. WHY: Passing `null` as `Integer numerator` causes implicit `.intValue()` unboxing to fail. HOW: Check `numerator != null` first.",
     basePoints: 200,
     tags: ["java", "boxing", "npe"]
@@ -313,12 +312,12 @@ const RUNTIME_RESCUE_BANK = [
     code: `int* p = new int(10);\ndelete p;\ndelete p; // double free`,
     runtimeError: "free(): double free detected in tcache 2 / Aborted (core dumped)",
     options: [
-      "Deleting an already freed pointer causes undefined behavior and heap corruption; set p = nullptr after delete",
-      "new int(10) cannot be deleted",
-      "delete p requires delete[] p",
-      "p must be a smart pointer"
+      "Pointers allocated with new int(10) cannot be manually freed with delete",
+      "Array deallocation delete[] p must be used for all heap pointer types",
+      "Deleting already freed pointer corrupts heap; assign p = nullptr after free",
+      "Raw pointer p must be wrapped in a static volatile storage duration class"
     ],
-    correctOption: 0,
+    correctOption: 2,
     explanation: "WHAT: Double free corruption. WHY: Freeing already returned heap blocks corrupts allocator freelists. HOW: Set `p = nullptr;` immediately after deleting.",
     basePoints: 200,
     tags: ["cpp", "memory", "double_free"]
@@ -333,10 +332,10 @@ const RUNTIME_RESCUE_BANK = [
     code: `SELECT name \nFROM students \nWHERE score = (SELECT score FROM students WHERE passed = 1);`,
     runtimeError: "ERROR: more than one row returned by a subquery used as an expression",
     options: [
-      "= expects a single scalar value; use IN or ANY for subqueries returning multiple rows",
-      "SELECT score is invalid inside parentheses",
-      "WHERE passed = 1 must be WHERE passed == 1",
-      "students table cannot be queried twice"
+      "Use IN or ANY operator instead of = when subqueries return multiple rows",
+      "Nested SELECT queries are forbidden inside SQL WHERE clause expressions",
+      "Comparison operator WHERE passed = 1 must use double equals operator ==",
+      "The students database table cannot be referenced twice in a single query"
     ],
     correctOption: 0,
     explanation: "WHAT: Multi-row subquery in scalar expression. WHY: The subquery returns multiple scores, but `=` requires a single value. HOW: Use `WHERE score IN (...)`.",
@@ -353,12 +352,12 @@ const RUNTIME_RESCUE_BANK = [
     code: `counter = 0\ndef increment():\n    counter += 1\n    return counter`,
     runtimeError: "UnboundLocalError: cannot access local variable 'counter' where it is not associated with a value",
     options: [
-      "Assigning to counter makes it a local variable; missing `global counter` declaration",
-      "counter += 1 cannot be used inside functions",
-      "counter must be defined inside a class",
-      "Python does not support integers outside functions"
+      "In-place increment counter += 1 is illegal inside Python function blocks",
+      "Declare global scope: add global counter inside increment() before modifying",
+      "Global variable counter must be encapsulated inside an explicit class",
+      "Python runtime does not permit integers to be defined outside functions"
     ],
-    correctOption: 0,
+    correctOption: 1,
     explanation: "WHAT: UnboundLocalError. WHY: Any assignment inside a function marks that variable as local for the whole scope. HOW: Add `global counter` (or use a state container).",
     basePoints: 225,
     tags: ["python", "scope", "variables"]
@@ -373,12 +372,12 @@ const RUNTIME_RESCUE_BANK = [
     code: `function parseResponse(raw) {\n  return JSON.parse(raw);\n}`,
     runtimeError: "SyntaxError: Unexpected token '<', '<!DOCTYPE '... is not valid JSON",
     options: [
-      "Server returned an HTML error page (e.g. 404/500) instead of a JSON string",
-      "JSON.parse cannot parse strings in JavaScript",
-      "raw must be an ArrayBuffer",
-      "JSON.parse requires a callback function"
+      "JSON.parse cannot parse string primitives without converting to object",
+      "Server returned HTML error page (e.g. 404/500) instead of a JSON payload",
+      "Parameter raw must be converted to an ArrayBuffer before JSON parsing",
+      "JSON.parse method requires passing a reviver callback as second argument"
     ],
-    correctOption: 0,
+    correctOption: 1,
     explanation: "WHAT: SyntaxError on JSON.parse. WHY: The server returned HTML (starting with `<!DOCTYPE`) rather than JSON. HOW: Check `response.ok` / content-type header before parsing.",
     basePoints: 225,
     tags: ["javascript", "json", "api"]
@@ -393,12 +392,12 @@ const RUNTIME_RESCUE_BANK = [
     code: `Object[] arr = new String[5];\narr[0] = 100; // storing Integer`,
     runtimeError: "java.lang.ArrayStoreException: java.lang.Integer",
     options: [
-      "Array covariant typing: actual runtime array type is String[]; storing Integer violates component type",
-      "Object[] cannot hold 5 items",
-      "100 must be cast to (Object)",
-      "ArrayStoreException is a checked exception"
+      "Object[] array container cannot store more than four individual elements",
+      "Cast numerical integer literal explicitly using (Object) 100 assignment",
+      "Runtime array is String[]; storing Integer violates array component type",
+      "ArrayStoreException is a checked exception requiring explicit try-catch"
     ],
-    correctOption: 0,
+    correctOption: 2,
     explanation: "WHAT: ArrayStoreException on covariant array. WHY: `arr` is backed by `String[]`. At runtime, storing an `Integer` fails type verification. HOW: Use `Object[] arr = new Object[5];`.",
     basePoints: 225,
     tags: ["java", "arrays", "covariance"]
@@ -413,12 +412,12 @@ const RUNTIME_RESCUE_BANK = [
     code: `class Shape {\npublic:\n    Shape() { draw(); }\n    virtual void draw() = 0;\n};`,
     runtimeError: "pure virtual method called / terminate called",
     options: [
-      "Calling pure virtual functions inside constructor before derived class is initialized",
-      "virtual functions cannot be declared with = 0",
-      "Shape constructor must be private",
-      "C++ does not support abstract classes"
+      "Virtual functions cannot be declared with pure specifier = 0 in C++",
+      "Calling pure virtual method in constructor before derived vtable is ready",
+      "Base class constructor Shape() must be declared with private visibility",
+      "ISO C++ does not permit defining abstract classes with pure virtuals"
     ],
-    correctOption: 0,
+    correctOption: 1,
     explanation: "WHAT: Pure virtual function call in ctor. WHY: During base class construction, derived vtable is not yet constructed. HOW: Do not call virtual methods from constructors.",
     basePoints: 250,
     tags: ["cpp", "oop", "vtable"]
@@ -433,12 +432,12 @@ const RUNTIME_RESCUE_BANK = [
     code: `INSERT INTO users (id, email) VALUES (1, 'duplicate@example.com');`,
     runtimeError: "ERROR: duplicate key value violates unique constraint \"users_pkey\"",
     options: [
-      "Primary key ID 1 already exists; use auto-increment sequence or ON CONFLICT DO UPDATE (UPSERT)",
-      "users table cannot have email column",
-      "VALUES cannot contain quotes",
-      "INSERT INTO must specify all table columns"
+      "The users database table schema cannot contain an email column field",
+      "SQL VALUES clause cannot contain single quoted string literal characters",
+      "INSERT statement must enumerate every existing table column explicitly",
+      "Primary key ID 1 exists; use auto-increment or ON CONFLICT DO UPDATE"
     ],
-    correctOption: 0,
+    correctOption: 3,
     explanation: "WHAT: Unique constraint violation. WHY: Primary keys must be unique. HOW: Omit `id` (use auto-increment) or use `ON CONFLICT (id) DO UPDATE ...`.",
     basePoints: 250,
     tags: ["sql", "primary_key", "constraints"]
@@ -453,10 +452,10 @@ const RUNTIME_RESCUE_BANK = [
     code: `lookup = {}\nuser_config = {'theme': 'dark'}\nlookup[user_config] = 'Active'`,
     runtimeError: "TypeError: unhashable type: 'dict'",
     options: [
-      "Mutable dictionaries are unhashable and cannot be dict keys or set elements; convert to frozenset/tuple",
-      "lookup must be a list",
-      "'Active' is invalid dictionary value",
-      "user_config requires int keys"
+      "Mutable dict is unhashable; convert to immutable tuple/frozenset for keys",
+      "Destination variable lookup must be instantiated as an indexed list",
+      "String literal 'Active' is an invalid value type for dictionary lookups",
+      "Dictionary user_config requires numerical integer keys exclusively"
     ],
     correctOption: 0,
     explanation: "WHAT: TypeError unhashable type. WHY: Dicts are mutable and lack `__hash__`. HOW: Convert to immutable `tuple(user_config.items())` or `frozenset`.",
@@ -473,12 +472,12 @@ const RUNTIME_RESCUE_BANK = [
     code: `function loop(n) {\n  return loop(n + 1);\n}\nloop(1);`,
     runtimeError: "RangeError: Maximum call stack size exceeded",
     options: [
-      "Infinite recursion fills call stack memory; add base termination condition or convert to iterative while loop",
-      "loop(1) must start at 0",
-      "n + 1 is invalid syntax in JavaScript",
-      "Functions named loop are forbidden"
+      "Function initial invocation loop(1) must start at 0 to avoid errors",
+      "Arithmetic expression n + 1 is invalid syntax in JavaScript functions",
+      "Infinite recursion exhausts call stack; add base condition or while loop",
+      "Function declarations named loop are reserved keywords in ECMAScript"
     ],
-    correctOption: 0,
+    correctOption: 2,
     explanation: "WHAT: Stack overflow RangeError. WHY: Unlimited recursive stack frames exhaust JS stack memory. HOW: Add a termination condition or convert to `while` loop.",
     basePoints: 250,
     tags: ["javascript", "stack_overflow", "recursion"]
@@ -493,10 +492,10 @@ const RUNTIME_RESCUE_BANK = [
     code: `Iterator<String> it = list.iterator();\nwhile (true) {\n    String val = it.next();\n}`,
     runtimeError: "java.util.NoSuchElementException",
     options: [
-      "Calling next() when iterator has reached the end throws NoSuchElementException; guard with while (it.hasNext())",
-      "list.iterator() is deprecated in Java",
-      "String val must be Object val",
-      "while (true) cannot contain iterators"
+      "Calling next() when exhausted throws error; guard with while (it.hasNext())",
+      "Method list.iterator() is deprecated in modern enterprise Java versions",
+      "Target variable String val must be declared as generic Object type",
+      "Loop condition while (true) cannot contain collection iterator references"
     ],
     correctOption: 0,
     explanation: "WHAT: NoSuchElementException. WHY: Calling `.next()` when empty crashes. HOW: Use `while (it.hasNext())`.",
@@ -513,12 +512,12 @@ const RUNTIME_RESCUE_BANK = [
     code: `std::any a = 42;\nstd::string s = std::any_cast<std::string>(a);`,
     runtimeError: "terminate called after throwing an instance of 'std::bad_any_cast'",
     options: [
-      "std::any holds int type; casting to incompatible std::string type throws std::bad_any_cast",
-      "std::any cannot store integers",
-      "std::any_cast only works on pointers",
-      "a must be declared with auto"
+      "std::any container cannot store primitive signed integer data values",
+      "Template std::any_cast only operates on raw pointer references in C++",
+      "Variable a must be declared using the auto type deduction specifier",
+      "std::any holds int; casting to std::string throws type mismatch bad_any_cast"
     ],
-    correctOption: 0,
+    correctOption: 3,
     explanation: "WHAT: std::bad_any_cast. WHY: Target type does not match stored type `int`. HOW: Cast with `std::any_cast<int>(a)` or check `a.type() == typeid(int)`.",
     basePoints: 275,
     tags: ["cpp", "any", "types"]
@@ -533,10 +532,10 @@ const RUNTIME_RESCUE_BANK = [
     code: `def my_gen():\n    raise StopIteration\nlist(my_gen())`,
     runtimeError: "RuntimeError: generator raised StopIteration",
     options: [
-      "In Python 3.7+ (PEP 479), explicitly raising StopIteration inside generators causes RuntimeError; use return instead",
-      "my_gen must be a class",
-      "list() cannot take generators",
-      "StopIteration cannot be raised in Python"
+      "Per PEP 479, raising StopIteration in generator is illegal; use return",
+      "Generator function my_gen must be implemented as a class with __iter__",
+      "Built-in function list() cannot consume generator iterators directly",
+      "Built-in exception StopIteration cannot be instantiated in user code"
     ],
     correctOption: 0,
     explanation: "WHAT: PEP 479 generator RuntimeError. WHY: Explicitly raising `StopIteration` inside a generator is illegal in modern Python. HOW: Use `return` to terminate generator.",
@@ -553,12 +552,12 @@ const RUNTIME_RESCUE_BANK = [
     code: `const arr = new Array(-1);`,
     runtimeError: "RangeError: Invalid array length",
     options: [
-      "Array constructor parameter must be non-negative integer between 0 and 2^32 - 1",
-      "new Array is forbidden in ES6",
-      "-1 must be in quotes '-1'",
-      "const arr must be let arr"
+      "The new Array constructor syntax is deprecated in modern ECMAScript",
+      "Length parameter -1 must be passed as a string literal argument '-1'",
+      "Array length argument must be a non-negative integer between 0 and 2^32 - 1",
+      "Variable declaration const arr must be changed to mutable let arr"
     ],
-    correctOption: 0,
+    correctOption: 2,
     explanation: "WHAT: Invalid array length RangeError. WHY: Array length cannot be negative. HOW: Pass non-negative size `new Array(0)`.",
     basePoints: 275,
     tags: ["javascript", "arrays", "range_error"]
@@ -573,12 +572,12 @@ const RUNTIME_RESCUE_BANK = [
     code: `SELECT conversions / clicks FROM ad_campaigns;`,
     runtimeError: "ERROR: division by zero",
     options: [
-      "Use NULLIF(clicks, 0) to convert 0 clicks to NULL (preventing division by zero crash)",
-      "ad_campaigns table cannot perform division",
-      "conversions must be cast to text",
-      "SELECT requires WHERE clause"
+      "The ad_campaigns table cannot perform arithmetic operations on columns",
+      "Use NULLIF(clicks, 0) to convert 0 clicks to NULL and avoid division by zero",
+      "Column conversions must be cast explicitly to string text type",
+      "SQL SELECT statements require an explicit WHERE clause filter constraint"
     ],
-    correctOption: 0,
+    correctOption: 1,
     explanation: "WHAT: SQL division by zero. WHY: When `clicks` is 0, query fails. HOW: Use `conversions / NULLIF(clicks, 0)`.",
     basePoints: 275,
     tags: ["sql", "math", "nullif"]
@@ -593,12 +592,12 @@ const RUNTIME_RESCUE_BANK = [
     code: `class Parent { Child c; public String toString() { return "Parent:" + c; } }\nclass Child { Parent p; public String toString() { return "Child:" + p; } }`,
     runtimeError: "java.lang.StackOverflowError",
     options: [
-      "Parent.toString() calls Child.toString() which calls Parent.toString() infinitely in circular loop",
-      "toString cannot return strings with colons",
-      "Child cannot have Parent reference",
-      "StackOverflowError is a checked exception"
+      "Method toString() cannot return formatted string literals with colons",
+      "Child class cannot hold an instance field reference to Parent object",
+      "Parent/Child mutual toString() calls recurse infinitely; break reference cycle",
+      "StackOverflowError is a checked exception requiring explicit try-catch"
     ],
-    correctOption: 0,
+    correctOption: 2,
     explanation: "WHAT: StackOverflowError in recursive toString. WHY: Infinite ping-pong between `Parent.toString()` and `Child.toString()`. HOW: Omit circular references from `toString()`.",
     basePoints: 300,
     tags: ["java", "recursion", "stack_overflow"]

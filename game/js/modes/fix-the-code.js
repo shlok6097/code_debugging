@@ -89,12 +89,12 @@ const FIX_THE_CODE_BANK = [
     description: "Adding 10 to input string throws TypeError.",
     code: `user_val = "25"\nresult = user_val + 10`,
     options: [
-      "result = int(user_val) + 10",
       "result = str(user_val) + 10",
       "result = user_val.toInt() + 10",
+      "result = int(user_val) + 10",
       "result = (int) user_val + 10"
     ],
-    correctOption: 0,
+    correctOption: 2,
     explanation: "WHAT: Type error on addition. WHY: Strings cannot be added to integers. HOW: Cast with `int(user_val)`.",
     basePoints: 125,
     tags: ["python", "types", "casting"]
@@ -108,12 +108,12 @@ const FIX_THE_CODE_BANK = [
     description: "Template expression is printed literally instead of interpolated.",
     code: `const name = "Alice";\nconst msg = 'Hello \${name}!';`,
     options: [
-      "const msg = `Hello \${name}!`;",
       "const msg = \"Hello \"{name}\"!\";",
+      "const msg = `Hello \${name}!`;",
       "const msg = 'Hello %s' % name;",
       "const msg = ('Hello ' + \${name});"
     ],
-    correctOption: 0,
+    correctOption: 1,
     explanation: "WHAT: Single quotes used for template literal. WHY: Template interpolation requires backticks. HOW: Use backticks `` `Hello ${name}!` ``.",
     basePoints: 125,
     tags: ["javascript", "strings", "template_literals"]
@@ -127,12 +127,12 @@ const FIX_THE_CODE_BANK = [
     description: "Creating ArrayList with primitive type fails to compile.",
     code: `List<int> numbers = new ArrayList<int>();`,
     options: [
-      "List<Integer> numbers = new ArrayList<Integer>();",
       "List<int> numbers = new List<int>();",
       "List numbers = new int[];",
+      "List<Integer> numbers = new ArrayList<Integer>();",
       "List<Primitive> numbers = new ArrayList<Primitive>();"
     ],
-    correctOption: 0,
+    correctOption: 2,
     explanation: "WHAT: Primitive generic type. WHY: Java generics require wrapper objects. HOW: Use `List<Integer>`.",
     basePoints: 125,
     tags: ["java", "generics", "collections"]
@@ -147,11 +147,11 @@ const FIX_THE_CODE_BANK = [
     code: `int* buffer = new int[100];\n// ... work with buffer ...\ndelete buffer;`,
     options: [
       "free(buffer);",
-      "delete[] buffer;",
       "buffer.clear();",
-      "drop buffer;"
+      "drop buffer;",
+      "delete[] buffer;"
     ],
-    correctOption: 1,
+    correctOption: 3,
     explanation: "WHAT: Array delete mismatch. WHY: Memory allocated with `new[]` must be released with `delete[]`. HOW: Use `delete[] buffer;`.",
     basePoints: 150,
     tags: ["cpp", "memory", "pointers"]
@@ -165,10 +165,10 @@ const FIX_THE_CODE_BANK = [
     description: "Calling add_log(msg) repeatedly accumulates messages into the same list.",
     code: `def add_log(message, logs=[]):\n    logs.append(message)\n    return logs`,
     options: [
-      "def add_log(message, logs=()):",
-      "def add_log(message, logs=None):\n    if logs is None: logs = []",
-      "def add_log(message, logs=list):\n    logs = logs()",
-      "def add_log(message, *logs):"
+      "def add_log(message, logs=()):\n    logs = list(logs)\n    logs.append(message)",
+      "def add_log(message, logs=None):\n    if logs is None:\n        logs = []",
+      "def add_log(message, logs=list):\n    logs = logs()\n    logs.append(message)",
+      "def add_log(message, *logs):\n    logs = list(logs)\n    logs.append(message)"
     ],
     correctOption: 1,
     explanation: "WHAT: Mutable default argument. WHY: `[]` is created once at definition time. HOW: Use `logs=None` and initialize `logs = []` inside.",
@@ -185,11 +185,11 @@ const FIX_THE_CODE_BANK = [
     code: `const sorted = [10, 5, 20, 1].sort();`,
     options: [
       "const sorted = [10, 5, 20, 1].sort(true);",
-      "const sorted = [10, 5, 20, 1].sort((a, b) => a - b);",
       "const sorted = [10, 5, 20, 1].sort(Number);",
-      "const sorted = [10, 5, 20, 1].sort('numeric');"
+      "const sorted = [10, 5, 20, 1].sort('numeric');",
+      "const sorted = [10, 5, 20, 1].sort((a, b) => a - b);"
     ],
-    correctOption: 1,
+    correctOption: 3,
     explanation: "WHAT: Lexicographical sort. WHY: `.sort()` converts numbers to strings. HOW: Provide comparison comparator `(a, b) => a - b`.",
     basePoints: 150,
     tags: ["javascript", "arrays", "sort"]
@@ -222,12 +222,12 @@ const FIX_THE_CODE_BANK = [
     description: "Indexing reserved vector with operator[] causes segmentation fault.",
     code: `std::vector<int> v;\nv.reserve(10);\nv[0] = 42;`,
     options: [
-      "v.resize(10);\nv[0] = 42;",
       "v.capacity(10);\nv[0] = 42;",
+      "v.resize(10);\nv[0] = 42;",
       "v.allocate(10);\nv[0] = 42;",
       "v.push_back_at(0, 42);"
     ],
-    correctOption: 0,
+    correctOption: 1,
     explanation: "WHAT: Indexing empty reserved vector. WHY: `reserve` allocates capacity but does not create elements (size remains 0). HOW: Use `v.resize(10)` or `v.push_back(42)`.",
     basePoints: 175,
     tags: ["cpp", "vector", "memory"]
@@ -241,12 +241,12 @@ const FIX_THE_CODE_BANK = [
     description: "List comprehension returns boolean list instead of filtered numbers.",
     code: `evens = [x % 2 == 0 for x in numbers]`,
     options: [
-      "evens = [x for x in numbers if x % 2 == 0]",
       "evens = [x == True for x in numbers if x % 2]",
       "evens = [x for x in numbers where x % 2 == 0]",
+      "evens = [x for x in numbers if x % 2 == 0]",
       "evens = [filter(numbers, x % 2 == 0)]"
     ],
-    correctOption: 0,
+    correctOption: 2,
     explanation: "WHAT: Expression vs filter condition. WHY: Putting condition in expression slot yields booleans. HOW: Place `if` filter at the end: `[x for x in numbers if x % 2 == 0]`.",
     basePoints: 175,
     tags: ["python", "comprehensions", "lists"]
@@ -261,7 +261,7 @@ const FIX_THE_CODE_BANK = [
     code: `const clone = { ...original };\nclone.settings.darkMode = true;`,
     options: [
       "const clone = structuredClone(original);",
-      "const clone = Object.assign(original);",
+      "const clone = Object.assign({}, original);",
       "const clone = Array.from(original);",
       "const clone = new Object(original);"
     ],
@@ -279,12 +279,12 @@ const FIX_THE_CODE_BANK = [
     description: "Removing elements in enhanced for-loop throws ConcurrentModificationException.",
     code: `for (String s : list) {\n    if (s.isEmpty()) {\n        list.remove(s);\n    }\n}`,
     options: [
-      "list.removeIf(String::isEmpty);",
       "for (int i = 0; i < list.size(); i++) { list.remove(i); }",
+      "list.removeIf(String::isEmpty);",
       "list.forEach(s -> list.remove(s));",
       "synchronized(list) { for (String s : list) list.remove(s); }"
     ],
-    correctOption: 0,
+    correctOption: 1,
     explanation: "WHAT: ConcurrentModificationException. WHY: Direct `.remove()` breaks active Iterator. HOW: Use `list.removeIf(String::isEmpty);` or explicit `Iterator.remove()`.",
     basePoints: 200,
     tags: ["java", "collections", "iterators"]
@@ -298,12 +298,12 @@ const FIX_THE_CODE_BANK = [
     description: "Copying std::unique_ptr causes compilation error (deleted copy constructor).",
     code: `std::unique_ptr<User> u1 = std::make_unique<User>();\nstd::unique_ptr<User> u2 = u1;`,
     options: [
-      "std::unique_ptr<User> u2 = std::move(u1);",
       "std::unique_ptr<User> u2 = &u1;",
       "std::unique_ptr<User> u2 = u1.clone();",
+      "std::unique_ptr<User> u2 = std::move(u1);",
       "std::unique_ptr<User> u2 = (unique_ptr) u1;"
     ],
-    correctOption: 0,
+    correctOption: 2,
     explanation: "WHAT: Attempted copy of unique_ptr. WHY: `unique_ptr` cannot be copied. HOW: Transfer ownership with `std::move(u1)`.",
     basePoints: 200,
     tags: ["cpp", "smart_pointers", "move"]
@@ -317,12 +317,12 @@ const FIX_THE_CODE_BANK = [
     description: "Query fails with syntax error: 'misuse of aggregate function in WHERE clause'.",
     code: `SELECT department, COUNT(*) \nFROM employees \nWHERE COUNT(*) > 5 \nGROUP BY department;`,
     options: [
-      "SELECT department, COUNT(*) FROM employees GROUP BY department HAVING COUNT(*) > 5;",
       "SELECT department, COUNT(*) FROM employees WHERE total > 5 GROUP BY department;",
+      "SELECT department, COUNT(*) FROM employees GROUP BY department HAVING COUNT(*) > 5;",
       "SELECT department, COUNT(*) FROM employees GROUP BY department WHERE COUNT(*) > 5;",
       "SELECT department, COUNT(*) FROM employees HAVING department COUNT(*) > 5;"
     ],
-    correctOption: 0,
+    correctOption: 1,
     explanation: "WHAT: Aggregate in WHERE clause. WHY: WHERE filters rows before aggregation occurs. HOW: Filter aggregated groups using `HAVING COUNT(*) > 5`.",
     basePoints: 200,
     tags: ["sql", "aggregation", "having"]
@@ -336,12 +336,12 @@ const FIX_THE_CODE_BANK = [
     description: "Catching and reraising exception loses original exception traceback.",
     code: `except ValueError as e:\n    raise CustomError("Failed")`,
     options: [
-      "except ValueError as e:\n    raise CustomError(\"Failed\") from e",
       "except ValueError as e:\n    raise CustomError(\"Failed\").with(e)",
+      "except ValueError as e:\n    raise CustomError(\"Failed\") from e",
       "except ValueError as e:\n    raise CustomError, e",
       "except ValueError as e:\n    throw CustomError(\"Failed\")"
     ],
-    correctOption: 0,
+    correctOption: 1,
     explanation: "WHAT: Lost exception context. WHY: Plain `raise CustomError` overwrites traceback. HOW: Use `raise CustomError(\"Failed\") from e`.",
     basePoints: 225,
     tags: ["python", "exceptions", "traceback"]
@@ -356,11 +356,11 @@ const FIX_THE_CODE_BANK = [
     code: `async function fetchScores(ids) {\n  const scores = ids.map(async (id) => api.getScore(id));\n  return scores;\n}`,
     options: [
       "return ids.map(id => await api.getScore(id));",
-      "return await Promise.all(ids.map(async (id) => api.getScore(id)));",
       "return ids.flatMap(async (id) => api.getScore(id));",
-      "return await ids.mapAsync(id => api.getScore(id));"
+      "return await ids.mapAsync(id => api.getScore(id));",
+      "return await Promise.all(ids.map(async (id) => api.getScore(id)));"
     ],
-    correctOption: 1,
+    correctOption: 3,
     explanation: "WHAT: Array of unresolved promises. WHY: `map` returns promises immediately without waiting. HOW: Wrap in `await Promise.all(...)`.",
     basePoints: 225,
     tags: ["javascript", "promises", "async"]
@@ -375,9 +375,9 @@ const FIX_THE_CODE_BANK = [
     code: `FileInputStream fis = new FileInputStream(file);\nbyte[] data = fis.readAllBytes();\nfis.close();`,
     options: [
       "try (FileInputStream fis = new FileInputStream(file)) {\n    byte[] data = fis.readAllBytes();\n}",
-      "FileInputStream fis = new AutoClose(new FileInputStream(file));",
-      "fis.closeImmediately();",
-      "synchronized(fis) { byte[] data = fis.readAllBytes(); }"
+      "FileInputStream fis = new AutoClose(new FileInputStream(file)) {\n    byte[] data = fis.readAllBytes();\n}",
+      "try {\n    FileInputStream fis = new FileInputStream(file);\n    byte[] data = fis.readAllBytes();\n}",
+      "synchronized(fis = new FileInputStream(file)) {\n    byte[] data = fis.readAllBytes();\n}"
     ],
     correctOption: 0,
     explanation: "WHAT: Resource leak on exception. WHY: If `readAllBytes()` throws, `.close()` is bypassed. HOW: Use `try (FileInputStream fis = ...)`.",
@@ -431,12 +431,12 @@ const FIX_THE_CODE_BANK = [
     description: "Yielding from sub-generator yields generator object instead of individual items.",
     code: `def flatten(nested):\n    for sub in nested:\n        yield flatten(sub)`,
     options: [
-      "def flatten(nested):\n    for sub in nested:\n        yield from flatten(sub)",
       "def flatten(nested):\n    for sub in nested:\n        yield *flatten(sub)",
       "def flatten(nested):\n    for sub in nested:\n        return flatten(sub)",
-      "def flatten(nested):\n    yield [flatten(sub) for sub in nested]"
+      "def flatten(nested):\n    for sub in nested:\n        yield [flatten(sub) for sub in nested]",
+      "def flatten(nested):\n    for sub in nested:\n        yield from flatten(sub)"
     ],
-    correctOption: 0,
+    correctOption: 3,
     explanation: "WHAT: Yielding generator object. WHY: `yield gen` yields the generator itself. HOW: Use `yield from flatten(sub)`.",
     basePoints: 250,
     tags: ["python", "generators", "yield_from"]
@@ -451,9 +451,9 @@ const FIX_THE_CODE_BANK = [
     code: `for (let i = 0; i < 1e9; i++) { heavyTask(); }`,
     options: [
       "async function runChunked() {\n  for (let i = 0; i < 1e9; i++) {\n    heavyTask();\n    if (i % 1000 === 0) await new Promise(r => setTimeout(r, 0));\n  }\n}",
-      "for (let i = 0; i < 1e9; i++) { Promise.resolve().then(heavyTask); }",
-      "heavyTask.runBackground();",
-      "window.requestFrame(heavyTask);"
+      "async function runChunked() {\n  for (let i = 0; i < 1e9; i++) {\n    Promise.resolve().then(heavyTask);\n  }\n}",
+      "function runChunked() {\n  for (let i = 0; i < 1e9; i++) {\n    heavyTask.runBackground();\n  }\n}",
+      "function runChunked() {\n  for (let i = 0; i < 1e9; i++) {\n    window.requestFrame(heavyTask);\n  }\n}"
     ],
     correctOption: 0,
     explanation: "WHAT: Macrotask UI freezing. WHY: Synchronous 1e9 iterations lock main thread. HOW: Chunk with `setTimeout(..., 0)` or use a Web Worker.",
@@ -469,12 +469,12 @@ const FIX_THE_CODE_BANK = [
     description: "Calling get() on empty Optional throws NoSuchElementException.",
     code: `Optional<String> opt = findName();\nString name = opt.get();`,
     options: [
-      "String name = opt.orElse(\"Default\");",
       "String name = (String) opt;",
+      "String name = opt.orElse(\"Default\");",
       "String name = opt.value();",
       "String name = opt.unwrap();"
     ],
-    correctOption: 0,
+    correctOption: 1,
     explanation: "WHAT: Direct `.get()` on empty Optional. WHY: If empty, `.get()` crashes. HOW: Use `.orElse(\"Default\")` or `.orElseGet(...)`.",
     basePoints: 250,
     tags: ["java", "optional", "null_safety"]
@@ -488,12 +488,12 @@ const FIX_THE_CODE_BANK = [
     description: "std::sort crashes on duplicate elements because comparator uses <= instead of <.",
     code: `bool comp(int a, int b) {\n    return a <= b; // violates strict weak ordering!\n}`,
     options: [
-      "bool comp(int a, int b) {\n    return a < b;\n}",
       "bool comp(int a, int b) {\n    return a == b;\n}",
       "bool comp(int a, int b) {\n    return a > b || a == b;\n}",
+      "bool comp(int a, int b) {\n    return a < b;\n}",
       "bool comp(int a, int b) {\n    return !(a < b);\n}"
     ],
-    correctOption: 0,
+    correctOption: 2,
     explanation: "WHAT: Strict weak ordering violation. WHY: `comp(x, x)` must return `false` for `std::sort`. `a <= b` returns true for equal items. HOW: Change to `a < b`.",
     basePoints: 250,
     tags: ["cpp", "sort", "comparators"]
@@ -507,12 +507,12 @@ const FIX_THE_CODE_BANK = [
     description: "Subquery with NOT IN fails on NULL records in child table.",
     code: `SELECT * FROM parent WHERE id NOT IN (SELECT parent_id FROM child);`,
     options: [
-      "SELECT * FROM parent p WHERE NOT EXISTS (SELECT 1 FROM child c WHERE c.parent_id = p.id);",
       "SELECT * FROM parent WHERE id != ANY (SELECT parent_id FROM child);",
+      "SELECT * FROM parent p WHERE NOT EXISTS (SELECT 1 FROM child c WHERE c.parent_id = p.id);",
       "SELECT * FROM parent WHERE id NOT LIKE (SELECT parent_id FROM child);",
       "SELECT * FROM parent WHERE id IS NOT (SELECT parent_id FROM child);"
     ],
-    correctOption: 0,
+    correctOption: 1,
     explanation: "WHAT: NOT IN with NULLs. WHY: A single NULL in child table makes NOT IN evaluate to UNKNOWN. HOW: Use `NOT EXISTS (SELECT 1 ...)`.",
     basePoints: 250,
     tags: ["sql", "subqueries", "not_exists"]
@@ -526,12 +526,12 @@ const FIX_THE_CODE_BANK = [
     description: "Singleton class creates new instances on every constructor call.",
     code: `class Singleton:\n    def __init__(self):\n        pass`,
     options: [
+      "class Singleton:\n    _instance = None\n    def __init__(self):\n        return self",
+      "class Singleton:\n    _instance = None\n    def create(self):\n        return self",
       "class Singleton:\n    _instance = None\n    def __new__(cls, *args, **kwargs):\n        if not cls._instance:\n            cls._instance = super().__new__(cls)\n        return cls._instance",
-      "class Singleton:\n    def __init__(self):\n        return self",
-      "class Singleton(static):\n    pass",
-      "class Singleton:\n    def create(self): return self"
+      "class Singleton:\n    _instance = None\n    def __call__(cls):\n        return cls._instance"
     ],
-    correctOption: 0,
+    correctOption: 2,
     explanation: "WHAT: Instance creation control. WHY: `__init__` initializes already created objects; `__new__` controls object creation. HOW: Override `__new__` to return cached `_instance`.",
     basePoints: 275,
     tags: ["python", "singleton", "metaclass"]
@@ -545,12 +545,12 @@ const FIX_THE_CODE_BANK = [
     description: "Accessing private field with string key throws syntax error.",
     code: `class Bank {\n  #balance = 1000;\n  getBalance() { return this['#balance']; }\n}`,
     options: [
-      "getBalance() { return this.#balance; }",
       "getBalance() { return this._balance; }",
+      "getBalance() { return this.#balance; }",
       "getBalance() { return this.private.balance; }",
       "getBalance() { return Bank.#balance; }"
     ],
-    correctOption: 0,
+    correctOption: 1,
     explanation: "WHAT: Bracket notation on private field. WHY: Private `#fields` are lexical identifiers and cannot be accessed dynamically with strings. HOW: Use dot identifier `this.#balance`.",
     basePoints: 275,
     tags: ["javascript", "classes", "private_fields"]
@@ -564,12 +564,12 @@ const FIX_THE_CODE_BANK = [
     description: "Template forwarding wrapper fails to preserve rvalue references.",
     code: `template <typename T>\nvoid wrapper(T&& arg) {\n    targetFunction(arg); // loses rvalue-ness!\n}`,
     options: [
-      "template <typename T>\nvoid wrapper(T&& arg) {\n    targetFunction(std::forward<T>(arg));\n}",
       "template <typename T>\nvoid wrapper(T&& arg) {\n    targetFunction(std::move(arg));\n}",
       "template <typename T>\nvoid wrapper(T&& arg) {\n    targetFunction(&arg);\n}",
-      "template <typename T>\nvoid wrapper(T&& arg) {\n    targetFunction((T)arg);\n}"
+      "template <typename T>\nvoid wrapper(T&& arg) {\n    targetFunction((T)arg);\n}",
+      "template <typename T>\nvoid wrapper(T&& arg) {\n    targetFunction(std::forward<T>(arg));\n}"
     ],
-    correctOption: 0,
+    correctOption: 3,
     explanation: "WHAT: Imperfect forwarding. WHY: Named rvalue parameters become lvalues inside the function body. HOW: Use `std::forward<T>(arg)`.",
     basePoints: 275,
     tags: ["cpp", "templates", "perfect_forwarding"]

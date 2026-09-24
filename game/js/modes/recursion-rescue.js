@@ -13,12 +13,12 @@ const RECURSION_RESCUE_BANK = [
     description: "Calling countdown(5) crashes with RecursionError: maximum recursion depth exceeded.",
     code: `def countdown(n):\n    print(n)\n    countdown(n - 1) # Bug: no base case`,
     options: [
-      "Add base case: if n <= 0: return",
-      "Change n - 1 to n + 1",
-      "Change countdown(n - 1) to return countdown(n)",
-      "Wrap inside a while loop"
+      "Invert parameter decrement step from n - 1 to increment n + 1",
+      "Add base case: if n <= 0: return to terminate recursive calls",
+      "Replace recursive call countdown(n - 1) with return countdown(n)",
+      "Wrap countdown invocation block inside an unbounded while loop"
     ],
-    correctOption: 0,
+    correctOption: 1,
     explanation: "WHAT: Missing termination base case. WHY: Without a base case, `countdown` descends into negative numbers indefinitely until the call stack overflows. HOW: Add `if n <= 0: return` at start.",
     basePoints: 85,
     tags: ["python", "recursion", "base_case"]
@@ -32,10 +32,10 @@ const RECURSION_RESCUE_BANK = [
     description: "factorial(5) returns 0 instead of 120 because base case returns 0.",
     code: `function factorial(n) {\n  if (n === 0) return 0; // Bug!\n  return n * factorial(n - 1);\n}`,
     options: [
-      "if (n <= 1) return 1;",
-      "if (n === 0) return -1;",
-      "return n + factorial(n - 1);",
-      "factorial(n - 1) should be factorial(n - 2)"
+      "Update base case return value: if (n <= 1) return 1;",
+      "Change base condition boundary check to if (n === 0) return -1;",
+      "Replace multiplication in step with addition: return n + factorial(n - 1);",
+      "Update recursive call parameter from factorial(n - 1) to factorial(n - 2)"
     ],
     correctOption: 0,
     explanation: "WHAT: Multiplicative zero absorption. WHY: 0 multiplied by anything is 0. Returning 0 from base case makes the entire product cascade to 0. HOW: Return 1 when `n <= 1`.",
@@ -51,12 +51,12 @@ const RECURSION_RESCUE_BANK = [
     description: "Recursive helper computes value but caller receives 0 / void result.",
     code: `public int sumDigits(int n) {\n    if (n == 0) return 0;\n    sumDigits(n / 10); // Bug: result discarded!\n    return n % 10;\n}`,
     options: [
-      "return (n % 10) + sumDigits(n / 10);",
-      "sumDigits(n / 10) should be sumDigits(n - 1)",
-      "n == 0 should be n < 0",
-      "Make method void"
+      "Change recursive argument from sumDigits(n / 10) to sumDigits(n - 1)",
+      "Combine recursive result: return (n % 10) + sumDigits(n / 10);",
+      "Change base condition check from n == 0 to negative boundary n < 0",
+      "Declare sumDigits method signature with void return type in class"
     ],
-    correctOption: 0,
+    correctOption: 1,
     explanation: "WHAT: Discarded recursive return value. WHY: The result of `sumDigits(n / 10)` is never captured or added to the sum. HOW: `return (n % 10) + sumDigits(n / 10)`.",
     basePoints: 95,
     tags: ["java", "recursion", "math"]
@@ -70,12 +70,12 @@ const RECURSION_RESCUE_BANK = [
     description: "Function calls itself with same argument value causing immediate infinite loop.",
     code: `int fib(int n) {\n    if (n <= 1) return n;\n    return fib(n) + fib(n - 1); // Bug: fib(n)!\n}`,
     options: [
-      "Change fib(n) to fib(n - 2)",
-      "Change fib(n <= 1) to fib(n <= 0)",
-      "Change + to *",
-      "fib must be static"
+      "Change base case condition comparison from n <= 1 to n <= 0 in fib",
+      "Replace addition operator between recursive calls with multiplication *",
+      "Shrink subproblem: update first recursive branch from fib(n) to fib(n - 2)",
+      "Declare function fib with static storage duration modifier in translation"
     ],
-    correctOption: 0,
+    correctOption: 2,
     explanation: "WHAT: Non-shrinking subproblem. WHY: `fib(n)` calls `fib(n)` with the identical parameter, causing infinite recursion. HOW: Change to `fib(n - 2)`.",
     basePoints: 95,
     tags: ["cpp", "recursion", "fibonacci"]
@@ -89,10 +89,10 @@ const RECURSION_RESCUE_BANK = [
     description: "Recursive list sum crashes on empty list input.",
     code: `def list_sum(arr):\n    if len(arr) == 1:\n        return arr[0]\n    return arr[0] + list_sum(arr[1:])`,
     options: [
-      "Change base case to: if not arr: return 0",
-      "arr[1:] should be arr[:-1]",
-      "arr[0] should be arr[-1]",
-      "Use len(arr) == 2"
+      "Update base case to handle empty inputs: if not arr: return 0",
+      "Change list slicing parameter from arr[1:] to reverse slice arr[:-1]",
+      "Replace head element index lookup from arr[0] to tail lookup arr[-1]",
+      "Change base case condition comparison from len(arr) == 1 to len(arr) == 2"
     ],
     correctOption: 0,
     explanation: "WHAT: Unhandled empty collection base case. WHY: Passing `[]` evaluates `len(arr) == 1` as false and attempts `arr[0]`, raising `IndexError`. HOW: Handle `if not arr: return 0`.",
@@ -108,12 +108,12 @@ const RECURSION_RESCUE_BANK = [
     description: "Recursive flatten accumulates previous runs because array is shared.",
     code: `function flatten(arr, acc = []) {\n  for (const item of arr) {\n    if (Array.isArray(item)) flatten(item, acc);\n    else acc.push(item);\n  }\n  return acc;\n}`,
     options: [
-      "This implementation is correct if acc is a new array per top-level call; ensure top caller doesn't pass shared mutable reference",
-      "acc.push(item) must be acc = acc.concat(item)",
-      "acc = [] must be acc = null",
-      "flatten must return void"
+      "Replace array mutating acc.push(item) with reassignment acc = acc.concat(item)",
+      "Change default accumulator parameter initialization from acc = [] to acc = null",
+      "Ensure new accumulator per top call or use return arr.flatMap(x => Array.isArray(x) ? flatten(x) : x)",
+      "Change return type of flatten function declaration to return undefined"
     ],
-    correctOption: 0,
+    correctOption: 2,
     explanation: "WHAT: Accumulator pattern correctness. WHY: In JS, default parameters evaluate per call if omitted, but callers passing an existing array must be aware of mutation. HOW: Safe pattern: pass `acc = []`.",
     basePoints: 110,
     tags: ["javascript", "recursion", "flatten", "arrays"]
@@ -127,12 +127,12 @@ const RECURSION_RESCUE_BANK = [
     description: "Tree depth function crashes with null pointer dereference on leaf children.",
     code: `struct Node { int val; Node* left; Node* right; };\nint maxDepth(Node* root) {\n    // Bug: missing null check!\n    return 1 + std::max(maxDepth(root->left), maxDepth(root->right));\n}`,
     options: [
-      "Add base case: if (!root) return 0;",
-      "if (root->left == nullptr) return 1;",
-      "Change std::max to std::min",
-      "root must be passed as Node&"
+      "Check leaf left child exclusively: if (root->left == nullptr) return 1;",
+      "Add base case check for empty nodes: if (!root) return 0;",
+      "Replace standard library function std::max with function std::min",
+      "Pass parameter root as a non-pointer reference type Node& in signature"
     ],
-    correctOption: 0,
+    correctOption: 1,
     explanation: "WHAT: Missing null base case in tree recursion. WHY: When a leaf node calls `maxDepth(root->left)`, `root` is `nullptr` and dereferencing `root->left` crashes. HOW: `if (!root) return 0;`.",
     basePoints: 110,
     tags: ["cpp", "trees", "recursion", "null"]
@@ -146,10 +146,10 @@ const RECURSION_RESCUE_BANK = [
     description: "isPalindrome throws StringIndexOutOfBoundsException on 1-char or empty strings.",
     code: `public boolean isPalindrome(String s) {\n    if (s.charAt(0) != s.charAt(s.length() - 1)) return false;\n    return isPalindrome(s.substring(1, s.length() - 1));\n}`,
     options: [
-      "Add base case: if (s.length() <= 1) return true; before charAt checks",
-      "s.substring(1, s.length() - 1) should be s.substring(0, s.length() - 1)",
-      "s.charAt(0) should be s.charAt(1)",
-      "Change return false to return true"
+      "Add base case check: if (s.length() <= 1) return true; before charAt lookups",
+      "Update substring indices from s.substring(1, s.length() - 1) to s.substring(0, s.length() - 1)",
+      "Replace index lookup charAt(0) with character index charAt(1) in condition",
+      "Change mismatch return value from return false to return true in method"
     ],
     correctOption: 0,
     explanation: "WHAT: Missing base case before element access. WHY: If `s` is empty `\"\"`, `s.charAt(0)` throws `StringIndexOutOfBoundsException`. HOW: Add `if (s.length() <= 1) return true;` first.",
@@ -165,12 +165,12 @@ const RECURSION_RESCUE_BANK = [
     description: "fib(40) takes over 30 seconds to compute due to redundant overlapping subproblems.",
     code: `def fib(n):\n    if n <= 1: return n\n    return fib(n - 1) + fib(n - 2)`,
     options: [
-      "Add memoization decorator: @functools.lru_cache(None) or use dynamic programming",
-      "Change n <= 1 to n <= 2",
-      "Use multithreading",
-      "Convert recursion to eval()"
+      "Change base condition comparison check from n <= 1 to n <= 2 in fib",
+      "Wrap fib calculation calls inside separate concurrent background threads",
+      "Apply memoization decorator: @functools.lru_cache(None) or iterative DP",
+      "Convert the recursive calculation expressions to use built-in eval()"
     ],
-    correctOption: 0,
+    correctOption: 2,
     explanation: "WHAT: $O(2^n)$ exponential recursion bottleneck. WHY: Without memoization, subproblems are recomputed repeatedly (e.g. `fib(5)` computed thousands of times). HOW: Use `@functools.lru_cache(None)`.",
     basePoints: 125,
     tags: ["python", "memoization", "complexity", "fibonacci"]
@@ -184,10 +184,10 @@ const RECURSION_RESCUE_BANK = [
     description: "Deep recursion throws RangeError: Maximum call stack size exceeded in non-TCO environments.",
     code: `function sumDown(n, acc = 0) {\n  if (n === 0) return acc;\n  return sumDown(n - 1, acc + n);\n}\nsumDown(100000); // Crash!`,
     options: [
-      "Standard JS engines (V8/Node/Chrome) do not support TCO; rewrite as iterative loop or trampoline",
-      "Change acc = 0 to acc = 1",
-      "Wrap sumDown in setTimeout",
-      "Make sumDown an async function"
+      "Most engines lack TCO; rewrite as iterative while loop or trampoline",
+      "Change default accumulator parameter initialization from acc = 0 to acc = 1",
+      "Wrap recursive function invocation sumDown inside a browser setTimeout timer",
+      "Declare sumDown as an asynchronous function returning a Promise resolution"
     ],
     correctOption: 0,
     explanation: "WHAT: Engine lack of Tail Call Optimization (TCO). WHY: Only Safari/WebKit implements ES6 TCO. V8 and SpiderMonkey will overflow stack on deep recursion. HOW: Convert to `while (n > 0)` loop or trampoline.",
@@ -203,12 +203,12 @@ const RECURSION_RESCUE_BANK = [
     description: "Sudoku solver fails because modified grid cell is not reset to 0 upon backtracking failure.",
     code: `bool solve(int r, int c) {\n    // ... found empty slot ...\n    for (int val = 1; val <= 9; val++) {\n        if (isValid(r, c, val)) {\n            grid[r][c] = val;\n            if (solve(nextR, nextC)) return true;\n            // Bug: missing grid[r][c] = 0; on backtrack!\n        }\n    }\n    return false;\n}`,
     options: [
-      "Add grid[r][c] = 0; after recursive solve fails",
-      "Return true instead of false at the end",
-      "Change val <= 9 to val < 9",
-      "grid must be passed by value"
+      "Return boolean true instead of false unconditionally at the end of solve",
+      "Change loop condition boundary comparison check from val <= 9 to val < 9",
+      "Add state undo: reset grid[r][c] = 0; when recursive solve branch fails",
+      "Pass grid multi-dimensional matrix by value on each recursive function call"
     ],
-    correctOption: 0,
+    correctOption: 2,
     explanation: "WHAT: Missing backtrack un-make step. WHY: If a chosen number leads to no solution, the cell must be cleared back to 0 so subsequent branches can explore alternatives. HOW: Add `grid[r][c] = 0;`.",
     basePoints: 125,
     tags: ["cpp", "backtracking", "sudoku"]
@@ -222,10 +222,10 @@ const RECURSION_RESCUE_BANK = [
     description: "BST LCA recursive check branches into left subtree when both values are greater than root.",
     code: `public TreeNode lowestCommonAncestor(TreeNode root, TreeNode p, TreeNode q) {\n    if (p.val < root.val && q.val < root.val)\n        return lowestCommonAncestor(root.left, p, q);\n    if (p.val > root.val && q.val > root.val)\n        return lowestCommonAncestor(root.left, p, q); // Bug: should be root.right!\n    return root;\n}`,
     options: [
-      "Change root.left to root.right in the second if statement",
-      "Change p.val > root.val to p.val == root.val",
-      "return root.left at the end",
-      "Swap p and q parameters"
+      "Change second branch to recurse on right subtree: lowestCommonAncestor(root.right, p, q)",
+      "Change condition check from p.val > root.val to equality check p.val == root.val",
+      "Return root.left unconditionally at the termination point of lowestCommonAncestor",
+      "Swap node parameter references p and q in method signature definition in class"
     ],
     correctOption: 0,
     explanation: "WHAT: Wrong subtree descent in BST LCA. WHY: When both `p.val` and `q.val` are greater than `root.val`, the common ancestor must lie in `root.right`. HOW: `return lowestCommonAncestor(root.right, p, q)`.",
@@ -241,12 +241,12 @@ const RECURSION_RESCUE_BANK = [
     description: "Combinations generate permutations with duplicate sets instead of combinations.",
     code: `def combinations(candidates, target, start, current, result):\n    if target == 0:\n        result.append(list(current))\n        return\n    for i in range(0, len(candidates)): # Bug: starts at 0 instead of 'start'\n        if candidates[i] <= target:\n            current.append(candidates[i])\n            combinations(candidates, target - candidates[i], i + 1, current, result)\n            current.pop()`,
     options: [
-      "Change range(0, len(candidates)) to range(start, len(candidates))",
-      "Change i + 1 to i - 1",
-      "result.append(current) instead of list(current)",
-      "target == 0 should be target < 0"
+      "Change recursive step index offset from i + 1 to decrement index i - 1",
+      "Append un-copied reference result.append(current) instead of list(current)",
+      "Start loop from start index: for i in range(start, len(candidates))",
+      "Change base condition check from target == 0 to negative check target < 0"
     ],
-    correctOption: 0,
+    correctOption: 2,
     explanation: "WHAT: Generating permutations instead of combinations. WHY: Starting loop from 0 on every call allows picking previously used elements in different orders. HOW: Start loop from `start`.",
     basePoints: 140,
     tags: ["python", "backtracking", "combinations"]
@@ -260,10 +260,10 @@ const RECURSION_RESCUE_BANK = [
     description: "Recursive deep clone function enters infinite recursion when object contains cyclic references.",
     code: `function deepClone(obj) {\n  if (obj === null || typeof obj !== 'object') return obj;\n  const copy = Array.isArray(obj) ? [] : {};\n  for (const key in obj) {\n    copy[key] = deepClone(obj[key]); // Hangs on circular references!\n  }\n  return copy;\n}`,
     options: [
-      "Pass a WeakMap cache to track and return already-cloned object references: deepClone(obj, map = new WeakMap())",
-      "Use JSON.parse(JSON.stringify(obj))",
-      "Check typeof obj === 'function'",
-      "Object.freeze(obj) first"
+      "Track visited objects with WeakMap cache: deepClone(obj, map = new WeakMap())",
+      "Replace recursive cloning logic with JSON.parse(JSON.stringify(obj)) method",
+      "Add base case check verifying whether typeof obj === 'function' in function",
+      "Apply Object.freeze(obj) immediately prior to initiating recursive key iteration"
     ],
     correctOption: 0,
     explanation: "WHAT: Cyclic graph recursion in deep clone. WHY: When `obj.self = obj`, `deepClone` recurses forever. HOW: Store visited object mappings in a `WeakMap`.",
@@ -279,12 +279,12 @@ const RECURSION_RESCUE_BANK = [
     description: "Trie DFS word collector appends character but fails to backtrack string prefix.",
     code: `void dfs(TrieNode* node, std::string& prefix, std::vector<std::string>& results) {\n    if (node->isWord) results.push_back(prefix);\n    for (int i = 0; i < 26; i++) {\n        if (node->children[i]) {\n            prefix.push_back('a' + i);\n            dfs(node->children[i], prefix, results);\n            // Bug: missing prefix.pop_back();\n        }\n    }\n}`,
     options: [
-      "Add prefix.pop_back(); after recursive dfs call to backtrack path",
-      "Pass prefix by value: std::string prefix",
-      "Both A and B are valid fixes",
-      "Change results to std::set"
+      "Add prefix.pop_back() after dfs recursive call or pass prefix by value",
+      "Change character conversion expression from 'a' + i to uppercase 'A' + i",
+      "Convert results collection parameter from std::vector to std::set container",
+      "Pass node parameter as a double pointer TrieNode** in recursive signature"
     ],
-    correctOption: 2,
+    correctOption: 0,
     explanation: "WHAT: Corrupted path accumulator. WHY: Modifying `prefix` by reference without `prefix.pop_back()` leaves sibling branches with corrupted character strings. HOW: Backtrack with `prefix.pop_back()` or pass `prefix` by value.",
     basePoints: 140,
     tags: ["cpp", "trie", "backtracking", "strings"]
@@ -298,12 +298,12 @@ const RECURSION_RESCUE_BANK = [
     description: "Directed graph cycle detector marks node as VISITED too early.",
     code: `boolean hasCycle(int u, int[] state, List<List<Integer>> adj) {\n    state[u] = 2; // Bug: 2 means VISITED/FINISHED; should be 1 (VISITING/IN_PROGRESS)!\n    for (int v : adj.get(u)) {\n        if (state[v] == 1) return true; // Found back edge\n        if (state[v] == 0 && hasCycle(v, state, adj)) return true;\n    }\n    state[u] = 2;\n    return false;\n}`,
     options: [
-      "Set state[u] = 1 (VISITING) at the beginning of DFS traversal for node u",
-      "state[u] = 0 at the beginning",
-      "Return true if state[v] == 2",
-      "Convert adjacency list to matrix"
+      "Set state[u] = 0 (UNVISITED) at the start of DFS traversal for node u",
+      "Mark node visiting at start: set state[u] = 1, then state[u] = 2 on completion",
+      "Return boolean true whenever neighbor node state evaluates to state[v] == 2",
+      "Convert graph representation from adjacency list to 2D adjacency matrix"
     ],
-    correctOption: 0,
+    correctOption: 1,
     explanation: "WHAT: Incorrect 3-color DFS cycle state. WHY: A back-edge cycle is detected when a neighbor is in state 1 (currently in active call stack). Setting `state[u] = 2` immediately disables cycle detection for paths leading back to `u`. HOW: Set `state[u] = 1` initially and `state[u] = 2` on return.",
     basePoints: 140,
     tags: ["java", "dfs", "cycle_detection", "graphs"]
@@ -317,12 +317,12 @@ const RECURSION_RESCUE_BANK = [
     description: "Recursive merge sort using list slicing creates O(N log N) space allocations and slow performance.",
     code: `def merge_sort(arr):\n    if len(arr) <= 1: return arr\n    mid = len(arr) // 2\n    left = merge_sort(arr[:mid])\n    right = merge_sort(arr[mid:])\n    return merge(left, right)`,
     options: [
-      "Pass index bounds (low, high) and sort with single auxiliary buffer instead of creating new slices at every level",
-      "Change len(arr) // 2 to len(arr) / 2",
-      "Use arr.sort() inside merge_sort",
-      "Return left + right"
+      "Change midpoint calculation expression from len(arr) // 2 to len(arr) / 2",
+      "Sort array in-place using built-in method arr.sort() inside merge_sort helper",
+      "Pass index bounds (low, high) with auxiliary buffer instead of slicing",
+      "Replace merge helper invocation with simple list concatenation: left + right"
     ],
-    correctOption: 0,
+    correctOption: 2,
     explanation: "WHAT: Slicing memory copy explosion. WHY: `arr[:mid]` and `arr[mid:]` allocate new lists at each recursive layer, increasing memory and overhead. HOW: Use index pointers `(low, high)` and an auxiliary buffer.",
     basePoints: 160,
     tags: ["python", "merge_sort", "recursion", "optimization"]
@@ -336,10 +336,10 @@ const RECURSION_RESCUE_BANK = [
     description: "Recursive key replacer mutates object keys in-place during traversal, corrupting iteration.",
     code: `function renameKeys(obj, fn) {\n  for (const key of Object.keys(obj)) {\n    const newKey = fn(key);\n    obj[newKey] = obj[key];\n    if (typeof obj[newKey] === 'object') renameKeys(obj[newKey], fn);\n    // Bug: did not delete old key obj[key]!\n  }\n  return obj;\n}`,
     options: [
-      "Delete original key: if (key !== newKey) delete obj[key]; or construct new transformed object",
-      "Object.keys(obj) should be Object.values(obj)",
-      "Use for...in loop without Object.keys",
-      "Change newKey to key.toUpperCase()"
+      "Delete old key: if (key !== newKey) delete obj[key]; or create clean copy",
+      "Replace property lookup method Object.keys(obj) with Object.values(obj)",
+      "Iterate over properties using for...in loop directly without Object.keys",
+      "Convert destination key name transformation explicitly with key.toUpperCase()"
     ],
     correctOption: 0,
     explanation: "WHAT: Incomplete key renaming. WHY: Assigning `obj[newKey] = obj[key]` without deleting `obj[key]` leaves duplicate stale keys in the object. HOW: `delete obj[key]` when `key !== newKey`.",
@@ -355,12 +355,12 @@ const RECURSION_RESCUE_BANK = [
     description: "Compile-time factorial template causes compiler error: template instantiation depth exceeds maximum.",
     code: `template<int N>\nstruct Factorial {\n    static constexpr int val = N * Factorial<N - 1>::val;\n};\n// Bug: missing base case template specialization!`,
     options: [
-      "Add specialization: template<> struct Factorial<0> { static constexpr int val = 1; };",
-      "Increase compiler template depth flag only",
-      "Change constexpr to const",
-      "Use struct Factorial<N + 1>"
+      "Increase compiler template recursion limit flag without adding specialization",
+      "Specialize base case: template<> struct Factorial<0> { static constexpr int val = 1; };",
+      "Change static constant specifier from static constexpr to static const",
+      "Modify recursive template instantiation argument from Factorial<N - 1> to <N + 1>"
     ],
-    correctOption: 0,
+    correctOption: 1,
     explanation: "WHAT: Missing template base specialization. WHY: Without `template<> struct Factorial<0>`, the compiler instantiates `Factorial<-1>`, `Factorial<-2>` until hitting compilation limits. HOW: Specialize `Factorial<0>`.",
     basePoints: 160,
     tags: ["cpp", "templates", "metaprogramming", "constexpr"]
@@ -374,10 +374,10 @@ const RECURSION_RESCUE_BANK = [
     description: "N-Queens bitmask solver modifies bitmask variable without scoping or restoring for siblings.",
     code: `void solve(int row, int cols, int diags1, int diags2) {\n    if (row == N) { count++; return; }\n    int available = (~(cols | diags1 | diags2)) & ((1 << N) - 1);\n    while (available != 0) {\n        int p = available & -available;\n        available -= p;\n        solve(row + 1, cols | p, (diags1 | p) << 1, (diags2 | p) >> 1);\n    }\n}`,
     options: [
-      "The bitmask passing by value in Java handles state restore cleanly; this standard bitwise formulation is correct",
-      "cols | p should be cols & p",
-      "(diags1 | p) << 1 should be diags1 << 1",
-      "available -= p should be available += p"
+      "Bitmask passing by value in Java creates isolated branch states cleanly",
+      "Replace bitwise OR operator cols | p with bitwise AND operator cols & p",
+      "Change diagonal shift expression from (diags1 | p) << 1 to diags1 << 1",
+      "Update bit removal statement from available -= p to addition available += p"
     ],
     correctOption: 0,
     explanation: "WHAT: Value-based bitwise state isolation. WHY: In bitwise N-Queens, passing new bitmask expressions directly as function parameters cleanly isolates state per recursion branch without requiring explicit undo steps. HOW: Value passing is correct.",
@@ -393,10 +393,10 @@ const RECURSION_RESCUE_BANK = [
     description: "Recursively traversing an async tree requires yield from or async for.",
     code: `async def traverse_tree(node):\n    yield node.val\n    for child in node.children:\n        traverse_tree(child) # Bug: coroutine created but not yielded/awaited!`,
     options: [
-      "Use: async for item in traverse_tree(child): yield item",
-      "Use: await traverse_tree(child)",
-      "Change yield to return",
-      "Use yield from traverse_tree(child)"
+      "Consume async generator: async for item in traverse_tree(child): yield item",
+      "Apply await keyword directly to coroutine object: await traverse_tree(child)",
+      "Replace keyword yield with standard return statement inside generator",
+      "Delegate sub-generator values using syntax: yield from traverse_tree(child)"
     ],
     correctOption: 0,
     explanation: "WHAT: Unconsumed async generator. WHY: Calling `traverse_tree(child)` creates an async generator object without yielding its values. `yield from` is not supported in async generators. HOW: `async for item in traverse_tree(child): yield item`.",
@@ -412,12 +412,12 @@ const RECURSION_RESCUE_BANK = [
     description: "Trampoline runner crashes because recursive step returns value instead of thunk function.",
     code: `const trampoline = fn => (...args) => {\n  let res = fn(...args);\n  while (typeof res === 'function') res = res();\n  return res;\n};\n// Bug in recursive function: returns direct call instead of () => sum(n - 1, acc + n)\nconst sum = (n, acc = 0) => n <= 0 ? acc : sum(n - 1, acc + n);`,
     options: [
-      "Wrap recursive step in a thunk: n <= 0 ? acc : () => sum(n - 1, acc + n)",
-      "trampoline function is invalid in JS",
-      "Change typeof res === 'function' to typeof res === 'number'",
-      "Call trampoline(sum) inside sum"
+      "Higher-order trampoline pattern is an invalid construct in ECMAScript",
+      "Wrap recursive step in a thunk function: () => sum(n - 1, acc + n)",
+      "Change type check comparison from typeof res === 'function' to 'number'",
+      "Invoke trampoline wrapper recursively inside sum function implementation"
     ],
-    correctOption: 0,
+    correctOption: 1,
     explanation: "WHAT: Missing thunk wrapper in trampoline. WHY: The trampoline relies on recursive steps returning deferred functions (`() => fn(...)`). Direct invocation still executes on the call stack. HOW: Return `() => sum(n - 1, acc + n)`.",
     basePoints: 175,
     tags: ["javascript", "trampoline", "functional_programming"]
@@ -431,12 +431,12 @@ const RECURSION_RESCUE_BANK = [
     description: "Deserializing a binary tree from preorder traversal without storing null markers creates invalid tree shapes.",
     code: `void serialize(Node* root, std::string& out) {\n    if (!root) return; // Bug: no null marker written!\n    out += std::to_string(root->val) + ",";\n    serialize(root->left, out);\n    serialize(root->right, out);\n}`,
     options: [
-      "Write a null marker (e.g. '#,') when root is nullptr so tree structure can be unambiguously reconstructed",
-      "Store tree in inorder traversal instead",
-      "Change return to out += '0,'",
-      "Tree cannot be serialized recursively"
+      "Serialize tree using symmetric inorder traversal sequence instead of preorder",
+      "Append numeric literal character string out += '0,' upon encountering nulls",
+      "Standard binary tree data structures cannot be serialized via recursion in C++",
+      "Write a null marker (e.g. '#,') when root is nullptr to preserve tree structure"
     ],
-    correctOption: 0,
+    correctOption: 3,
     explanation: "WHAT: Structural ambiguity in tree serialization. WHY: Without null markers (sentinels), preorder traversal alone cannot distinguish between left and right children. HOW: Append `\"#,\"` when `!root`.",
     basePoints: 175,
     tags: ["cpp", "trees", "serialization"]
@@ -450,10 +450,10 @@ const RECURSION_RESCUE_BANK = [
     description: "Grammar with direct left recursion (Expr -> Expr '+' Term) causes immediate stack overflow.",
     code: `// Grammar: E -> E + T | T\npublic ASTNode parseExpr() {\n    ASTNode left = parseExpr(); // Bug: immediate left-recursive call!\n    match('+');\n    ASTNode right = parseTerm();\n    return new AddNode(left, right);\n}`,
     options: [
-      "Eliminate left recursion: parse Expr as Term followed by loop for ('+' Term)*",
-      "Increase stack size with -Xss",
-      "Change parseExpr to parseTerm in right child",
-      "Make parseExpr synchronized"
+      "Eliminate left recursion: parse Expr as Term followed by a ('+' Term)* loop",
+      "Increase JVM thread stack allocation size limit using -Xss configuration",
+      "Replace parseExpr call in left child with parseTerm in right child instead",
+      "Declare parseExpr method with synchronized concurrency modifier in class"
     ],
     correctOption: 0,
     explanation: "WHAT: Left recursion in LL(1) recursive descent parser. WHY: A function that begins by calling itself with no consumed tokens never reaches a base case. HOW: Eliminate left recursion using `parseTerm()` followed by a `while (match('+'))` loop.",
@@ -469,12 +469,12 @@ const RECURSION_RESCUE_BANK = [
     description: "Tree DP function caches mutable dictionary that gets modified by parent calls.",
     code: `memo = {}\ndef tree_dp(node):\n    if node in memo:\n        return memo[node]\n    res = {'max': 0, 'count': 0}\n    # ... compute res ...\n    memo[node] = res\n    return res\n# Caller modifies result: tree_dp(node)['max'] += 10, corrupting memo cache!`,
     options: [
-      "Return immutable namedtuple/tuple or return a copy (res.copy())",
-      "Clear memo on every call",
-      "Convert node to an int",
-      "Use memo = []"
+      "Clear entire global memo dictionary table on every single recursive entry",
+      "Return immutable namedtuple/tuple or return a shallow copy res.copy()",
+      "Convert node object reference to primitive integer identifier before hashing",
+      "Initialize global memo cache container as a flat indexed list structure"
     ],
-    correctOption: 0,
+    correctOption: 1,
     explanation: "WHAT: Mutable object cache pollution. WHY: Returning a mutable `dict` allows callers to modify the cached object directly, corrupting future lookups. HOW: Return immutable objects (tuples/frozen dataclasses) or shallow copies.",
     basePoints: 190,
     tags: ["python", "memoization", "dp", "trees"]
@@ -488,12 +488,12 @@ const RECURSION_RESCUE_BANK = [
     description: "Recursively unwrapping DOM elements while iterating over element.childNodes skips every second child.",
     code: `function unwrap(node) {\n  for (let i = 0; i < node.childNodes.length; i++) {\n    const child = node.childNodes[i];\n    unwrap(child);\n    node.parentNode.insertBefore(child, node); // Mutates live childNodes list in-flight!\n  }\n}`,
     options: [
-      "Iterate over static snapshot: Array.from(node.childNodes) or iterate in reverse",
-      "Use node.children instead of childNodes",
-      "Change i++ to i += 2",
-      "Set node.innerHTML = ''"
+      "Replace node.childNodes property lookup with element property node.children",
+      "Change loop counter step increment from standard i++ to double step i += 2",
+      "Clear inner DOM subtree content immediately using node.innerHTML = ''",
+      "Iterate over static snapshot: Array.from(node.childNodes) or iterate in reverse"
     ],
-    correctOption: 0,
+    correctOption: 3,
     explanation: "WHAT: Live NodeList mutation during traversal. WHY: `childNodes` is a live DOM collection. Moving a child shifts the remaining indices, causing the loop to skip nodes. HOW: Snapshot with `Array.from(node.childNodes)`.",
     basePoints: 190,
     tags: ["javascript", "dom", "nodelist", "mutation"]
@@ -507,10 +507,10 @@ const RECURSION_RESCUE_BANK = [
     description: "constexpr function computing Ackermann function exceeds compiler constexpr evaluation limit.",
     code: `constexpr int ackermann(int m, int n) {\n    if (m == 0) return n + 1;\n    if (n == 0) return ackermann(m - 1, 1);\n    return ackermann(m - 1, ackermann(m, n - 1));\n}\nstatic_assert(ackermann(3, 8) == 2045); // Fails compile: constexpr step limit exceeded`,
     options: [
-      "Ackermann grows too fast for compile-time evaluation step limit (-fconstexpr-steps); use lookup table or runtime calculation",
-      "Change constexpr to inline",
-      "static_assert cannot call functions",
-      "Change m == 0 to m <= 0"
+      "Ackermann steps exceed limit; compute at runtime or increase constexpr-steps",
+      "Change compile-time specifier from constexpr to function specifier inline",
+      "Static assertion macro static_assert cannot invoke user defined functions",
+      "Update base condition check from equality m == 0 to inequality m <= 0"
     ],
     correctOption: 0,
     explanation: "WHAT: Constexpr evaluation step budget overflow. WHY: Compilers have strict limits on recursive step counts during compile-time evaluation. Extremely deep recursion exceeds step limits. HOW: Precompute or evaluate at runtime.",
@@ -526,12 +526,12 @@ const RECURSION_RESCUE_BANK = [
     description: "Tarjan's articulation point algorithm fails to recognize root node condition.",
     code: `void dfs(int u, int p) {\n    tin[u] = low[u] = ++timer;\n    int children = 0;\n    for (int v : adj.get(u)) {\n        if (v == p) continue;\n        if (visited[v]) {\n            low[u] = Math.min(low[u], tin[v]);\n        } else {\n            visited[v] = true;\n            dfs(v, u);\n            low[u] = Math.min(low[u], low[v]);\n            if (low[v] >= tin[u] && p != -1) isCutVertex[u] = true;\n            children++;\n        }\n    }\n    // Bug: root node (p == -1) articulation point check missing!\n}`,
     options: [
-      "Add root check: if (p == -1 && children > 1) isCutVertex[u] = true;",
-      "low[u] = Math.min(low[u], low[v]) should be tin[v]",
-      "children > 0 is sufficient for root",
-      "p != -1 check should be removed"
+      "Update back-edge assignment from Math.min(low[u], tin[v]) to tin[v] value",
+      "Assume children > 0 is sufficient criterion to mark root as articulation point",
+      "Remove parent node inequality validation filter check p != -1 from condition",
+      "Add root articulation check: if (p == -1 && children > 1) isCutVertex[u] = true;"
     ],
-    correctOption: 0,
+    correctOption: 3,
     explanation: "WHAT: Missing root articulation point criterion. WHY: The DFS root has no ancestors, so `low[v] >= tin[u]` is always true for its children. The root is an articulation point if and only if it has $> 1$ independent DFS children. HOW: Add `if (p == -1 && children > 1) isCutVertex[u] = true;`.",
     basePoints: 200,
     tags: ["java", "tarjan", "articulation_points", "graphs"]
@@ -545,10 +545,10 @@ const RECURSION_RESCUE_BANK = [
     description: "AST NodeVisitor subclass calls generic_visit but fails to return visitor result from recursive descent.",
     code: `class EvalVisitor(ast.NodeVisitor):\n    def visit_BinOp(self, node):\n        left = self.visit(node.left)\n        right = self.visit(node.right)\n        if isinstance(node.op, ast.Add): return left + right\n    def visit_Constant(self, node):\n        return node.value\n    def generic_visit(self, node):\n        super().generic_visit(node) # Bug: generic_visit returns None by default in Python ast!`,
     options: [
-      "Ensure all custom visit methods return explicit evaluated values rather than falling back to void generic_visit",
-      "Change visit_BinOp to visit_Add",
-      "ast.NodeVisitor is not subclassable",
-      "Use ast.walk instead of visit"
+      "Ensure all custom visit methods return explicit evaluated values directly",
+      "Rename custom handler method from visit_BinOp to visit_Add in EvalVisitor",
+      "Standard library ast.NodeVisitor class cannot be inherited or subclassed",
+      "Replace recursive visitor dispatch pattern with flat ast.walk generator"
     ],
     correctOption: 0,
     explanation: "WHAT: Void AST visitor fallthrough. WHY: `ast.NodeVisitor.generic_visit` in standard library returns `None`. An interpreter pattern requiring return values must explicitly handle and return results for all visited nodes. HOW: Implement explicit returns in all handlers.",
@@ -564,12 +564,12 @@ const RECURSION_RESCUE_BANK = [
     description: "CPS transformation of recursive function exhausts call stack when continuations are called synchronously.",
     code: `function sumCPS(n, cont) {\n  if (n === 0) return cont(0);\n  return sumCPS(n - 1, val => cont(val + n)); // Call stack builds nested closures until crash!\n}`,
     options: [
-      "Continuations accumulate on stack; use setImmediate / process.nextTick / trampoline to unwind",
-      "Change cont(0) to cont(n)",
-      "CPS cannot compute sums",
-      "Return cont directly"
+      "Update base case continuation invocation argument from cont(0) to cont(n)",
+      "Continuations build up stack; use trampoline or setImmediate to unwind",
+      "Continuation-passing style cannot compute arithmetic sums in JavaScript",
+      "Return raw cont callback parameter directly without invoking in base case"
     ],
-    correctOption: 0,
+    correctOption: 1,
     explanation: "WHAT: CPS continuation closure stack buildup. WHY: Synchronous CPS replaces stack frames with a chain of closure frames. When the base case calls `cont(0)`, the entire chain of $N$ continuations executes synchronously on the call stack. HOW: Trampoline or bounce continuations.",
     basePoints: 200,
     tags: ["javascript", "cps", "continuations", "functional"]
